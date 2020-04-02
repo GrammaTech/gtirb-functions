@@ -21,7 +21,7 @@
 (in-package :gtirb-functions/gtirb-functions)
 (in-readtable :curry-compose-reader-macros)
 
-(defclass func ()
+(defclass func (gtirb-node)
   ((module :initarg :module :accessor module :type module
            :documentation "Module containing the function.")
    (name :initarg :name :accessor name :type '(or null symbol)
@@ -33,6 +33,8 @@
             :type '(list (or code-block proxy-block))
             :documentation "Blocks serving as entry points to the function."))
   (:documentation "A function in a GTIRB instance."))
+
+(defmethod ir ((func func)) (ir (module func)))
 
 (defgeneric exits (object)
   (:documentation "Return the blocks that exit OBJECT.")
