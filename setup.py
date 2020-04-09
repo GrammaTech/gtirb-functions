@@ -1,0 +1,26 @@
+from setuptools import setup, find_packages
+import unittest
+
+
+def gtirb_functions_test_suite():
+    test_loader = unittest.TestLoader()
+    test_suite = test_loader.discover("tests", pattern="test_*.py")
+    return test_suite
+
+
+if __name__ == "__main__":
+    setup(
+        name="gtirb-functions",
+        version="0.1.0",
+        author="blevine",
+        author_email="blevine@grammatech.com",
+        description="Utilities for dealing with functions in GTIRB",
+        package_data={"gtirb_functions": ["gtirb_functions/*.py"]},
+        packages=find_packages(),
+        test_suite="setup.gtirb_functions_test_suite",
+        install_requires=["gtirb"],
+        classifiers=["Programming Language :: Python :: 3"],
+        entry_points={
+            "console_scripts": ["functions = functions.__main__:main"]
+        },
+    )
