@@ -18,9 +18,7 @@ from .functions import Functions
 
 
 def main():
-    ap = argparse.ArgumentParser(
-        description="Show functions in GTIRB"
-    )
+    ap = argparse.ArgumentParser(description="Show functions in GTIRB")
     ap.add_argument("infile")
     ap.add_argument(
         "-v", "--verbose", action="store_true", help="Verbose output"
@@ -40,10 +38,10 @@ def main():
     logger.info("Identifying functions...")
 
     for m in ir.modules:
-      fns = Functions.build_functions(m)
-      print("Module: %s"%m.name)
-      for fn in fns:
-        print("\tFunction: %s"%fn.get_name())
+        fns = Functions.build_functions(m)
+        print("Module: %s" % m.name)
+        for fn in fns:
+            print("\tFunction: %s" % fn.get_name())
 
     logger.info("Done.")
 
