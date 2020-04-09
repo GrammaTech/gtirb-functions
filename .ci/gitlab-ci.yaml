@@ -65,12 +65,3 @@ test_package:
   image: $BUILD_IMAGE_NAME
   script:
     - for f in dist/*.whl; do python3 -m pip install $f; done
-
-# cleanup:
-#   stage: cleanup
-#   tags:
-#     - shell-exec
-#   script:
-#     - export LOCAL_IMAGE_BASE=$(echo ${LOCAL_IMAGE_NAME} |  tr A-Z a-z)
-#     - docker rmi -f ${LOCAL_IMAGE_BASE}
-#   when: always
