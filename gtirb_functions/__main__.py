@@ -38,10 +38,11 @@ def main():
     for m in ir.modules:
         fns = Function.build_functions(m)
         fns.sort(key=lambda x: x.get_name())
-        print("Module: %s" % m.name)
-        for fn in fns:
-            print("\tFunction: %s" % fn.get_name())
-            print(fn)
+        if len(fns) > 0:
+          print("Module: %s" % m.name)
+          for fn in fns:
+              print("\tFunction: %s" % fn.get_name())
+              print(fn)
 
     logger.info("Done.")
 

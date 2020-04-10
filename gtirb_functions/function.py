@@ -80,7 +80,7 @@ class Function(object):
         return "[UUID={}, Name={}, Entry={}, Exit={}, All={}]".format(
             self._uuid,
             self.get_name(),
-            list(self._entryBlocks).sort(key=block_addr),
-            list(self.get_exit_blocks()).sort(key=block_addr),
-            list(self._blocks).sort(key=block_addr),
+            sorted(list(self._entryBlocks), key=block_addr),
+            sorted(list(self.get_exit_blocks()), key=block_addr),
+            sorted(list(self._blocks), key=block_addr),
         )
