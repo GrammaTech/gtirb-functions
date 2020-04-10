@@ -39,10 +39,10 @@ def main():
         fns = Function.build_functions(m)
         fns.sort(key=lambda x: x.get_name())
         if len(fns) > 0:
-          print("Module: %s" % m.name)
-          for fn in fns:
-              print("\tFunction: %s" % fn.get_name())
-              print(fn)
+            print("Module: %s" % m.name)
+            for fn in fns:
+                print("\tFunction: %s" % fn.get_name())
+                print(fn)
 
     logger.info("Done.")
 
