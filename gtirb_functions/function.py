@@ -74,6 +74,13 @@ class Function(object):
         return self._blocks
 
     def __repr__(self):
-        return "[UUID={}, Name={}, Entry={}, Blocks={}]".format(
-            self._uuid, self.get_name(), self._entryBlocks, self._blocks
+        def block_addr(x):
+            return x.byte_interval.address + x.offset
+
+        return "[UUID={}, Name={}, Entry={}, Exit={}, All={}]".format(
+            self._uuid,
+            self.get_name(),
+            list(self._entryBlocks).sort(key=block_addr),
+            list(self.get_exit_blocks()).sort(key=block_addr),
+            list(self._blocks).sort(key=block_addr),
         )

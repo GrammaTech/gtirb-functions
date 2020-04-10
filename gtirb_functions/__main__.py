@@ -14,7 +14,7 @@
 import argparse
 import logging
 from gtirb import IR
-from .functions import Functions
+from .function import Function
 
 
 def main():
@@ -29,8 +29,6 @@ def main():
     logger = logging.getLogger("gtirb.functions")
     if args.verbose:
         logger.setLevel(logging.DEBUG)
-    elif not args.quiet:
-        logger.setLevel(logging.INFO)
 
     logger.info("Loading IR...")
     ir = IR.load_protobuf(args.infile)
@@ -38,10 +36,12 @@ def main():
     logger.info("Identifying functions...")
 
     for m in ir.modules:
-        fns = Functions.build_functions(m)
+        fns = Function.build_functions(m)
+        fns.sort(key=lambda x: x.get_name())
         print("Module: %s" % m.name)
         for fn in fns:
             print("\tFunction: %s" % fn.get_name())
+            print(fn)
 
     logger.info("Done.")
 

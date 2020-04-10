@@ -10,6 +10,6 @@
 # reflect the position or policy of the Government and no official
 # endorsement should be inferred.
 #
-__all__ = ["Functions"]
+__all__ = ["Function"]
 
-from .functions import Functions
+from .function import Function
