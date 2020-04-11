@@ -16,8 +16,7 @@
            :functions
            :entries
            :exits
-           :returns
-           :test))
+           :returns))
 (in-package :gtirb-functions/gtirb-functions)
 (in-readtable :curry-compose-reader-macros)
 
