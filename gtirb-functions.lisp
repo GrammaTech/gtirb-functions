@@ -34,6 +34,11 @@
             :documentation "Blocks serving as entry points to the function."))
   (:documentation "A function in a GTIRB instance."))
 
+(defmethod print-object ((obj func) stream)
+  (print-unreadable-object (obj stream :type t :identity t)
+    (format stream "~a ~d/~d"
+            (name (name obj)) (length (entries obj)) (length (blocks obj)))))
+
 (defmethod ir ((func func)) (ir (module func)))
 
 (defgeneric exits (object)
