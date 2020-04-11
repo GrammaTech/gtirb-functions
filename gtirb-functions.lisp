@@ -46,10 +46,8 @@
     (let ((cfg (cfg (gtirb (module obj)))))
       (remove-if-not
        (lambda (node)
-         (remove-if «or [{intersection (mapcar #'uuid (entries obj))} #'cdr]
-                        [#'not {equal (uuid node)} #'car]»
-                    (node-edges cfg (uuid node))))
-       (entries obj)))))
+         (some [{equal (uuid node)} #'car] (node-edges cfg (uuid node))))
+       (blocks obj)))))
 
 (defgeneric returns (object)
   (:documentation "Return the blocks that return from OBJECT.")
