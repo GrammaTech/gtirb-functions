@@ -72,7 +72,8 @@
       (maphash
        (lambda (key value)
          (push (make-instance 'func
-                 :name (gethash key names)
+                 :name (when-let ((uuid (gethash key names)))
+                         (get-uuid uuid obj))
                  :module obj
                  :blocks (mapcar {get-uuid _ obj} value)
                  :entries (mapcar {get-uuid _ obj} (gethash key entries)))
