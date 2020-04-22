@@ -24,8 +24,8 @@ if __name__ == "__main__":
     setup(
         name="gtirb-functions",
         version="0.1.0",
-        author="blevine",
-        author_email="blevine@grammatech.com",
+        author="Grammatech",
+        author_email="",
         description="Utilities for dealing with functions in GTIRB",
         package_data={"gtirb_functions": ["gtirb_functions/*.py"]},
         packages=find_packages(),
