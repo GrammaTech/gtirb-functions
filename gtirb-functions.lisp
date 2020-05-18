@@ -36,7 +36,8 @@
 (defmethod print-object ((obj func) stream)
   (print-unreadable-object (obj stream :type t :identity t)
     (format stream "~a ~d/~d"
-            (name (name obj)) (length (entries obj)) (length (blocks obj)))))
+            (if-let ((n (name obj))) (name n))
+            (length (entries obj)) (length (blocks obj)))))
 
 (defmethod ir ((func func)) (ir (module func)))
 
