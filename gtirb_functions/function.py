@@ -14,7 +14,23 @@ from gtirb import Edge
 
 
 class Function(object):
+    """A function is a collection of code blocks, with information about
+    what the function should be named and what entrace and exit blocks it has.
+    """
+
     def __init__(self, uuid, entryBlocks=None, blocks=None, name_symbols=None):
+        """Construct a new function.
+
+        :param uuid: The UUID of the function. This value must not be the UUID
+        of any existing code block.
+        :param entryBlocks: A set of code blocks that represent possible entry
+        points into the function.
+        :param blocks: A set of code blocks that represent all blocks in this
+        function.
+        :param name_symbols: A set of symbols that could represent the name of
+        the function.
+        """
+
         self._uuid = uuid
         self._entryBlocks = entryBlocks
         self._exit_blocks = None
@@ -23,6 +39,8 @@ class Function(object):
 
     @classmethod
     def build_functions(cls, module):
+        """Given a module, generate all the functions accosicated with it."""
+
         functions = []
         for uuid, entryBlocks in module.aux_data[
             "functionEntries"
@@ -48,6 +66,8 @@ class Function(object):
         return functions
 
     def get_name(self):
+        """Get the name of this function as a str."""
+
         names = [s.name for s in self._name_symbols]
         if len(names) == 1:
             return names[0]
@@ -57,9 +77,13 @@ class Function(object):
             return "<unknown>"
 
     def get_entry_blocks(self):
+        """Get the set of entry blocks into this function."""
+
         return self._entryBlocks
 
     def get_exit_blocks(self):
+        """Get the set of exit blocks out of this function."""
+
         if self._exit_blocks is None:
             self._exit_blocks = set()
             for b in self.get_all_blocks():
@@ -71,6 +95,8 @@ class Function(object):
         return self._exit_blocks
 
     def get_all_blocks(self):
+        """Get all blocks in this function."""
+
         return self._blocks
 
     def __repr__(self):
