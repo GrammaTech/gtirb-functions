@@ -10,6 +10,7 @@
 # reflect the position or policy of the Government and no official
 # endorsement should be inferred.
 #
-__all__ = ["Function"]
+__all__ = ["Function", "__version__"]
 
 from .function import Function
+from .version import __version__

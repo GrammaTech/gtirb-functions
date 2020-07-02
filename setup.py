@@ -10,8 +10,14 @@
 # reflect the position or policy of the Government and no official
 # endorsement should be inferred.
 #
-from setuptools import setup, find_packages
+import imp
 import unittest
+import setuptools
+
+
+__version__ = imp.load_source(
+    "pkginfo.version", "gtirb_functions/version.py"
+).__version__
 
 
 def gtirb_functions_test_suite():
@@ -21,18 +27,26 @@ def gtirb_functions_test_suite():
 
 
 if __name__ == "__main__":
-    setup(
+    with open("README.md", "r") as fh:
+        long_description = fh.read()
+
+    setuptools.setup(
         name="gtirb-functions",
-        version="0.1.0",
+        version=__version__,
         author="Grammatech",
         author_email="gtirb@grammatech.com",
         description="Utilities for dealing with functions in GTIRB",
-        package_data={"gtirb_functions": ["gtirb_functions/*.py"]},
-        packages=find_packages(),
+        packages=setuptools.find_packages(),
         test_suite="setup.gtirb_functions_test_suite",
         install_requires=["gtirb"],
         classifiers=["Programming Language :: Python :: 3"],
         entry_points={
-            "console_scripts": ["functions = functions.__main__:main"]
+            "console_scripts": [
+                "gtirb-functions=gtirb_functions.__main__:main"
+            ],
         },
+        long_description=long_description,
+        long_description_content_type="text/markdown",
+        url="https://github.com/grammatech/gtirb-functions",
+        license="MIT",
     )
