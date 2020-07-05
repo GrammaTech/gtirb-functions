@@ -23,13 +23,11 @@
 (defclass func (gtirb-node)
   ((module :initarg :module :accessor module :type module
            :documentation "Module containing the function.")
-   (name :initarg :name :accessor name :type '(or null symbol)
+   (name :initarg :name :accessor name :type (or null symbol)
          :documentation "Name of the function, if present.")
-   (blocks :initarg :blocks :accessor blocks
-           :type '(list (or code-block proxy-block))
+   (blocks :initarg :blocks :accessor blocks :type list
            :documentation "Blocks in the function.")
-   (entries :initarg :entries :accessor entries
-            :type '(list (or code-block proxy-block))
+   (entries :initarg :entries :accessor entries :type list
             :documentation "Blocks serving as entry points to the function."))
   (:documentation "A function in a GTIRB instance."))
 
