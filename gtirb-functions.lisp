@@ -10,13 +10,14 @@
 ;;; endorsement should be inferred.
 (defpackage :gtirb-functions/gtirb-functions
   (:nicknames :gtirb-functions)
-  (:use :gt :gtirb :graph :stefil)
+  (:use :gt :gtirb :gtirb-capstone :graph :stefil)
   (:shadow :size :symbol :copy)
   (:export :func
            :functions
            :entries
            :exits
-           :returns))
+           :returns
+           :tail-calls))
 (in-package :gtirb-functions/gtirb-functions)
 (in-readtable :curry-compose-reader-macros)
 
@@ -43,18 +44,33 @@
   (:documentation "Return the blocks that exit OBJECT.")
   (:method ((obj func))
     (let ((cfg (cfg (gtirb (module obj)))))
-      (remove-if-not
-       (lambda (node)
-         (some [{equal (uuid node)} #'car] (node-edges cfg (uuid node))))
+      (remove-if-not ; Blocks with non-call edges leaving the function.
+       [{some «and [#'not {eql :call} #'edge-type {edge-value cfg}]
+                   [#'not {member _ (mapcar #'uuid (blocks obj))} #'second]»}
+        {node-edges cfg} #'uuid]
        (blocks obj)))))
 
 (defgeneric returns (object)
   (:documentation "Return the blocks that return from OBJECT.")
   (:method ((obj func))
+    (remove-if-not [{some [{eql :ret} #'mnemonic]} #'instructions]
+                   (blocks obj))))
+
+(defgeneric tail-calls (object)
+  (:documentation "Return the blocks that tail-call out of OBJECT.")
+  (:method ((obj func))
     (let ((cfg (cfg (gtirb (module obj)))))
-      (remove-if-not [{some [{eql :return} #'edge-type {edge-value cfg}]}
-                      {node-edges cfg} #'uuid]
-                     (exits obj)))))
+      (remove-if-not
+       (lambda (exit-block)
+         (when-let* ((uuid (uuid exit-block))
+                     (exit-edges (remove-if-not [{= uuid} #'first]
+                                                (node-edges cfg uuid)))
+                     (edge-value (edge-value cfg (first exit-edges))))
+           (and (= 1 (length exit-edges))
+                (not (conditional edge-value))
+                (direct edge-value)
+                (eql :branch (edge-type edge-value)))))
+       (blocks obj)))))
 
 (defgeneric functions (object)
   (:documentation "Return all functions in OBJECT.")
@@ -85,6 +101,14 @@
        blocks)
       results)))
 
+(defmethod instructions ((func func))
+  (nest (apply #'concatenate 'vector)
+        (mapcar #'instructions)
+        (mapcar {get-uuid _ (ir func)})
+        (topological-sort)
+        (subgraph (cfg (ir func)))
+        (mapcar #'uuid)
+        (blocks func)))
 
 ;;;; Main test suite.
 (defsuite test)
