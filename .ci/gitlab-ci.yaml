@@ -1,10 +1,10 @@
 variables:
   DOCKER_REGISTRY: "docker.grammatech.com"
-  LOCAL_IMAGE_NAME: '$CI_BUILD_REF_NAME-$CI_PIPELINE_ID'
+  LOCAL_IMAGE_NAME: "$CI_BUILD_REF_NAME-$CI_PIPELINE_ID"
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_STRATEGY: clone
-  FORMATTER_IMAGE_NAME: '${DOCKER_REGISTRY}/${CI_PROJECT_PATH}/formatter'
-  BUILD_IMAGE_NAME: '${DOCKER_REGISTRY}/${CI_PROJECT_PATH}/build'
+  FORMATTER_IMAGE_NAME: "${DOCKER_REGISTRY}/${CI_PROJECT_PATH}/formatter"
+  BUILD_IMAGE_NAME: "${DOCKER_REGISTRY}/${CI_PROJECT_PATH}/build"
 
 stages:
   - build-images
@@ -22,6 +22,10 @@ build-images:
   tags:
     - shell-exec
   script:
+    # download packages
+    - wget -L https://git.grammatech.com/rewriting/gtirb-capstone/-/jobs/artifacts/master/raw/dist/gtirb_capstone-1.0.0-py3-none-any.whl?job=build -O gtirb_capstone.whl
+    - cp /u4/TARBALLS/debloat/pkgs/libcapstone-dev_4.0.1-gt2_amd64.deb ./
+    # run docker
     - docker build -t $FORMATTER_IMAGE_NAME -f .ci/Dockerfile.formatter .
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $DOCKER_REGISTRY
     - docker push $FORMATTER_IMAGE_NAME
@@ -52,7 +56,7 @@ build:
   image: $BUILD_IMAGE_NAME
   artifacts:
     paths:
-    - dist/gtirb_functions-?.?.?-py3-none-any.whl
+      - dist/gtirb_functions-?.?.?-py3-none-any.whl
     expire_in: 1 weeks
   script:
     - python3 setup.py sdist bdist_wheel
@@ -80,8 +84,8 @@ pypi:
     - RESPONSE_CODE=$(curl -Ls -o /dev/null -w "%{http_code}" https://pypi.org/project/gtirb-functions/${VERSION}/)
     - if [ "$RESPONSE_CODE" = "404" ];
       then
-        pip3 install twine --upgrade;
-        python3 setup.py sdist bdist_wheel;
-        twine check dist/*;
-        twine upload dist/* -u __token__ -p $PYPI_API_KEY;
+      pip3 install twine --upgrade;
+      python3 setup.py sdist bdist_wheel;
+      twine check dist/*;
+      twine upload dist/* -u __token__ -p $PYPI_API_KEY;
       fi

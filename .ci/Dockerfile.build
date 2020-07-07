@@ -1,7 +1,19 @@
 FROM docker.grammatech.com/rewriting/gtirb/ubuntu18-gcc7
 
+# Upgrade pip packages.
 RUN apt-get install -y python3-pip && \
     python3 -m pip install --upgrade setuptools wheel
 
+# Build base GTIRB.
 WORKDIR /gt/gtirb/build/python
 RUN python3 setup.py develop
+
+# Instll Capstone.
+COPY libcapstone-dev_*_amd64.deb ./
+RUN dpkg -i libcapstone-dev_*_amd64.deb \
+    && rm libcapstone-dev_*_amd64.deb
+
+# Install gtirb-functions
+COPY gtirb_capstone.whl ./
+RUN python3 -m pip install gtirb_capstone.whl \
+    && rm gtirb_capstone.whl

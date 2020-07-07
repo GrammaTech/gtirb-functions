@@ -10,7 +10,8 @@
 # reflect the position or policy of the Government and no official
 # endorsement should be inferred.
 #
-from gtirb import Edge
+import gtirb
+import gtirb_capstone.instructions
 
 
 class Function(object):
@@ -86,10 +87,34 @@ class Function(object):
 
         if self._exit_blocks is None:
             self._exit_blocks = set()
+
+            # A block is an exit block if it ends in a return or a tail
+            # call.
             for b in self.get_all_blocks():
-                for e in b.outgoing_edges:
-                    # TODO Handle tail calls (jmp)
-                    if e.label.type == Edge.Type.Return:
+                # Does it end in a ret instruction?
+                decoder = gtirb_capstone.instructions.GtirbInstructionDecoder(
+                    b.module.isa
+                )
+                ends_in_ret = False
+                for instruction in decoder.get_instructions(b):
+                    if instruction.mnemonic.startswith("ret"):
+                        ends_in_ret = True
+                        break
+                if ends_in_ret:
+                    self._exit_blocks.add(b)
+                    continue
+
+                # Does it end in a tail call?
+                edges = tuple(b.outgoing_edges)
+                if len(edges) != 1:
+                    continue
+                for e in edges:
+                    if (
+                        e.label.type == gtirb.Edge.Type.Branch
+                        and e.label.direct
+                        and not e.label.conditional
+                        and e.target not in self.get_all_blocks()
+                    ):
                         self._exit_blocks.add(b)
 
         return self._exit_blocks

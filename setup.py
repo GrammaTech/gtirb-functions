@@ -38,7 +38,7 @@ if __name__ == "__main__":
         description="Utilities for dealing with functions in GTIRB",
         packages=setuptools.find_packages(),
         test_suite="setup.gtirb_functions_test_suite",
-        install_requires=["gtirb"],
+        install_requires=["gtirb", "gtirb-capstone"],
         classifiers=["Programming Language :: Python :: 3"],
         entry_points={
             "console_scripts": [
