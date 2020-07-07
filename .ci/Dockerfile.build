@@ -14,6 +14,6 @@ RUN dpkg -i libcapstone-dev_*_amd64.deb \
     && rm libcapstone-dev_*_amd64.deb
 
 # Install gtirb-functions
-COPY gtirb_capstone.whl ./
-RUN python3 -m pip install gtirb_capstone.whl \
-    && rm gtirb_capstone.whl
+COPY gtirb_capstone-*-py3-none-any.whl ./
+RUN python3 -m pip install gtirb_capstone-*-py3-none-any.whl \
+    && rm gtirb_capstone-*-py3-none-any.whl
