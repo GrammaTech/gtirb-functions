@@ -111,7 +111,6 @@ class Function(object):
                 for e in edges:
                     if (
                         e.label.type == gtirb.Edge.Type.Branch
-                        and e.label.direct
                         and not e.label.conditional
                         and e.target not in self.get_all_blocks()
                     ):
