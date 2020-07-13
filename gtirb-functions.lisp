@@ -68,7 +68,6 @@
                      (edge-value (edge-value cfg (first exit-edges))))
            (and (= 1 (length exit-edges))
                 (not (conditional edge-value))
-                (direct edge-value)
                 (eql :branch (edge-type edge-value)))))
        (blocks obj)))))
 
