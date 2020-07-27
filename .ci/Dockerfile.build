@@ -1,12 +1,13 @@
-FROM docker.grammatech.com/rewriting/gtirb/ubuntu18-gcc7
+FROM docker.grammatech.com/rewriting/gtirb/ubuntu18
 
 # Upgrade pip packages.
-RUN apt-get install -y python3-pip && \
+RUN apt-get install -y python3-pip unzip && \
     python3 -m pip install --upgrade setuptools wheel
 
-# Build base GTIRB.
-WORKDIR /gt/gtirb/build/python
-RUN python3 setup.py develop
+# Download and intall gtirb
+ARG GTIRB_BRANCH=master
+RUN curl -L https://git.grammatech.com/rewriting/gtirb/-/jobs/artifacts/$GTIRB_BRANCH/download?job=debian-installer-ubuntu18 --output "gtirb-artifacts.zip" && unzip gtirb-artifacts.zip
+RUN dpkg -i python3-gtirb.deb
 
 # Install Capstone.
 COPY libcapstone-dev_*_amd64.deb ./
