@@ -12,6 +12,7 @@
 #
 import gtirb
 import gtirb_capstone.instructions
+import capstone
 
 
 class Function(object):
@@ -96,16 +97,39 @@ class Function(object):
                     b.module.isa
                 )
                 ends_in_ret = False
+                ends_in_indirect_jump = False
                 for instruction in decoder.get_instructions(b):
-                    if instruction.mnemonic.startswith("ret"):
+                    if instruction.id == capstone.x86.X86_INS_RET:
                         ends_in_ret = True
+                        break
+                    elif (
+                        capstone.x86.X86_GRP_JUMP in instruction.groups
+                        and instruction.operands[0].type
+                        == capstone.x86.X86_OP_REG
+                    ):
+                        print(
+                            "ends in an indirect jump: %s %s"
+                            % (instruction.mnemonic, instruction.op_str)
+                        )
+                        ends_in_indirect_jump = True
                         break
                 if ends_in_ret:
                     self._exit_blocks.add(b)
                     continue
 
-                # Does it end in a tail call?
+                # if it ends in an indirect jump, and all the possible targets
+                # ends up in the same function, then it is NOT an exit block
                 edges = tuple(b.outgoing_edges)
+                if ends_in_indirect_jump:
+                    for e in edges:
+                        print("\t", e.label, type(e.target))
+                if ends_in_indirect_jump and all(
+                    e.label.direct or (e.target in self._blocks) for e in edges
+                ):
+                    print("\tAll indirect targets into the same function!")
+                    continue
+
+                # Does it end in a tail call?
                 if len(edges) != 1:
                     continue
                 for e in edges:
