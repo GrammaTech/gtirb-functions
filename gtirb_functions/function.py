@@ -10,6 +10,7 @@
 # reflect the position or policy of the Government and no official
 # endorsement should be inferred.
 #
+import collections
 import gtirb
 import gtirb_capstone.instructions
 import capstone
@@ -20,7 +21,14 @@ class Function(object):
     what the function should be named and what entrace and exit blocks it has.
     """
 
-    def __init__(self, uuid, entryBlocks=None, blocks=None, name_symbols=None):
+    def __init__(
+        self,
+        uuid,
+        entryBlocks=None,
+        blocks=None,
+        name_symbols=None,
+        exitBlocks=None,
+    ):
         """Construct a new function.
 
         :param uuid: The UUID of the function. This value must not be the UUID
@@ -31,11 +39,13 @@ class Function(object):
         function.
         :param name_symbols: A set of symbols that could represent the name of
         the function.
+        :param exitBlocks: A set of code blocks that represent possible points
+        where control could leave the function.
         """
 
         self._uuid = uuid
         self._entryBlocks = entryBlocks
-        self._exit_blocks = None
+        self._exit_blocks = exitBlocks
         self._blocks = blocks
         self._name_symbols = name_symbols
 
@@ -43,26 +53,28 @@ class Function(object):
     def build_functions(cls, module):
         """Given a module, generate all the functions accosicated with it."""
 
+        symbols = collections.defaultdict(set)
+        for symbol in module.symbols:
+            symbols[symbol.referent].add(symbol)
+
+        outgoing_edge_map = collections.defaultdict(list)
+        for edge in module.ir.cfg:
+            outgoing_edge_map[edge.source].append(edge)
+
         functions = []
         for uuid, entryBlocks in module.aux_data[
             "functionEntries"
         ].data.items():
-            entryBlocksUUID = set([e.uuid for e in entryBlocks])
             blocks = module.aux_data["functionBlocks"].data[uuid]
-            syms = [
-                x
-                for x in filter(
-                    lambda s: s.referent
-                    and s.referent.uuid in entryBlocksUUID,
-                    module.symbols,
-                )
-            ]
+            exits = cls._get_exit_blocks(blocks, outgoing_edge_map)
+            syms = [s for b in entryBlocks for s in symbols[b]]
             functions.append(
                 Function(
                     uuid,
                     entryBlocks=entryBlocks,
                     blocks=blocks,
                     name_symbols=syms,
+                    exitBlocks=exits,
                 )
             )
         return functions
@@ -83,54 +95,65 @@ class Function(object):
 
         return self._entryBlocks
 
+    @classmethod
+    def _get_exit_blocks(cls, blocks, outgoing_edge_map):
+        exit_blocks = set()
+
+        # A block is an exit block if it ends in a return or a tail
+        # call.
+        for b in blocks:
+            # Does it end in a ret instruction?
+            decoder = gtirb_capstone.instructions.GtirbInstructionDecoder(
+                b.module.isa
+            )
+            ends_in_ret = False
+            ends_in_indirect_jump = False
+            for instruction in decoder.get_instructions(b):
+                if instruction.id == capstone.x86.X86_INS_RET:
+                    ends_in_ret = True
+                    break
+                elif (
+                    capstone.x86.X86_GRP_JUMP in instruction.groups
+                    and instruction.operands[0].type == capstone.x86.X86_OP_REG
+                ):
+                    ends_in_indirect_jump = True
+                    break
+            if ends_in_ret:
+                exit_blocks.add(b)
+                continue
+
+            # if it ends in an indirect jump, and all the possible targets
+            # ends up in the same function, then it is NOT an exit block
+            edges = outgoing_edge_map[b]
+            if ends_in_indirect_jump and all(
+                e.label.direct or (e.target in blocks) for e in edges
+            ):
+                continue
+
+            # Does it end in a tail call?
+            if len(edges) != 1:
+                continue
+            for e in edges:
+                if (
+                    e.label.type == gtirb.Edge.Type.Branch
+                    and not e.label.conditional
+                    and e.target not in blocks
+                ):
+                    exit_blocks.add(b)
+
+        return exit_blocks
+
     def get_exit_blocks(self):
         """Get the set of exit blocks out of this function."""
 
         if self._exit_blocks is None:
-            self._exit_blocks = set()
+            blocks = self.get_all_blocks()
+            edge_map = collections.defaultdict(list)
+            for ir in {b.ir for b in blocks}:
+                for edge in ir.cfg:
+                    edge_map[edge.source].append(edge)
 
-            # A block is an exit block if it ends in a return or a tail
-            # call.
-            for b in self.get_all_blocks():
-                # Does it end in a ret instruction?
-                decoder = gtirb_capstone.instructions.GtirbInstructionDecoder(
-                    b.module.isa
-                )
-                ends_in_ret = False
-                ends_in_indirect_jump = False
-                for instruction in decoder.get_instructions(b):
-                    if instruction.id == capstone.x86.X86_INS_RET:
-                        ends_in_ret = True
-                        break
-                    elif (
-                        capstone.x86.X86_GRP_JUMP in instruction.groups
-                        and instruction.operands[0].type
-                        == capstone.x86.X86_OP_REG
-                    ):
-                        ends_in_indirect_jump = True
-                        break
-                if ends_in_ret:
-                    self._exit_blocks.add(b)
-                    continue
-
-                # if it ends in an indirect jump, and all the possible targets
-                # ends up in the same function, then it is NOT an exit block
-                edges = tuple(b.outgoing_edges)
-                if ends_in_indirect_jump and all(
-                    e.label.direct or (e.target in self._blocks) for e in edges
-                ):
-                    continue
-
-                # Does it end in a tail call?
-                if len(edges) != 1:
-                    continue
-                for e in edges:
-                    if (
-                        e.label.type == gtirb.Edge.Type.Branch
-                        and not e.label.conditional
-                        and e.target not in self.get_all_blocks()
-                    ):
-                        self._exit_blocks.add(b)
+            self._exit_blocks = self._get_exit_blocks(blocks, edge_map)
 
         return self._exit_blocks
 
