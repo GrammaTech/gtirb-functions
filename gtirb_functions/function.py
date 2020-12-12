@@ -162,6 +162,11 @@ class Function(object):
 
         return self._blocks
 
+    def get_uuid(self):
+        """Gets the UUID for the function."""
+
+        return self._uuid
+
     def __repr__(self):
         def block_addr(x):
             return x.byte_interval.address + x.offset
