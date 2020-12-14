@@ -162,7 +162,8 @@ class Function(object):
 
         return self._blocks
 
-    def get_uuid(self):
+    @property
+    def uuid(self):
         """Gets the UUID for the function."""
 
         return self._uuid
