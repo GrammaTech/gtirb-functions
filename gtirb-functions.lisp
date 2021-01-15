@@ -10,7 +10,7 @@
 ;;; endorsement should be inferred.
 (defpackage :gtirb-functions/gtirb-functions
   (:nicknames :gtirb-functions)
-  (:use :gt :gtirb :gtirb-capstone :graph :stefil)
+  (:use :gt :gtirb :graph :stefil)
   (:shadow :size :symbol :copy)
   (:export :func
            :functions
