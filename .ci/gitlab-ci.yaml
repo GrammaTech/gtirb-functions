@@ -22,9 +22,6 @@ build-images:
   tags:
     - shell-exec
   script:
-    # download packages
-    - wget -L https://git.grammatech.com/rewriting/gtirb-capstone/-/jobs/artifacts/master/raw/dist/gtirb_capstone-1.0.0-py3-none-any.whl?job=build -O gtirb_capstone-1.0.0-py3-none-any.whl
-    - cp /u4/TARBALLS/debloat/pkgs/libcapstone-dev_4.0.1-gt2_amd64.deb ./
     # run docker
     - docker build -t $FORMATTER_IMAGE_NAME -f .ci/Dockerfile.formatter .
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $DOCKER_REGISTRY
