@@ -80,8 +80,8 @@ class Function(object):
         names = [s.name for s in self._name_symbols]
         if len(names) == 1:
             return names[0]
-        elif len(names) > 2:
-            return "{} (a.k.a. {}".format(names[0], ",".join(names[1:]))
+        elif len(names) >= 2:
+            return "{} (a.k.a. {})".format(names[0], ",".join(names[1:]))
         else:
             return "<unknown>"
 
