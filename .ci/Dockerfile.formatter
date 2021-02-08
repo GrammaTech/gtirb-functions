@@ -12,8 +12,8 @@ RUN apt-get update \
     slime \
     elpa-paredit
 
-RUN pip3 install "virtualenv<20.0.0"
-RUN pip3 install pre-commit
+RUN pip3 install --upgrade pip && \
+    pip3 install pre-commit
 
 # Install the lisp-format pre-commit format checker.
 RUN curl https://raw.githubusercontent.com/eschulte/lisp-format/master/lisp-format > /usr/bin/lisp-format

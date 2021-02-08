@@ -2,7 +2,7 @@ FROM docker.grammatech.com/rewriting/gtirb/ubuntu18
 
 # Upgrade pip packages.
 RUN apt-get install -y python3-pip unzip && \
-    python3 -m pip install --upgrade setuptools wheel
+    python3 -m pip install --upgrade pip setuptools wheel
 
 # Download and intall gtirb
 ARG GTIRB_BRANCH=master
