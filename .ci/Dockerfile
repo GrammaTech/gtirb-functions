@@ -4,23 +4,28 @@ RUN apt-get update \
     && apt-get -y install \
     python3 \
     python3-pip \
+    python3-protobuf \
+    cmake \
     clang-format \
     git \
     curl \
     sbcl \
     emacs-nox \
     slime \
-    elpa-paredit
+    elpa-paredit \
+    unzip \
+    wget
 
-RUN pip3 install --upgrade pip && \
-    pip3 install pre-commit
+RUN python3 -m pip install --upgrade pip
+RUN python3 -m pip install pre-commit
 
 # Install the lisp-format pre-commit format checker.
 RUN curl https://raw.githubusercontent.com/eschulte/lisp-format/master/lisp-format > /usr/bin/lisp-format
 RUN chmod +x /usr/bin/lisp-format
 RUN echo "(add-to-list 'load-path \"/usr/share/emacs/site-lisp/\")" > /root/.lisp-formatrc
 
-# COPY . /gt/gtirb-stack-stamp/
-# WORKDIR /gt/gtirb-stack-stamp/
-
-# RUN pre-commit run --all-files
+# Install pre-commit hooks
+WORKDIR /gt/gtirb-functions
+RUN git init
+COPY .pre-commit-config.yaml /gt/gtirb-functions/.pre-commit-config.yaml
+RUN pre-commit install-hooks
