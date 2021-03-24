@@ -4,8 +4,6 @@ RUN apt-get update \
     && apt-get -y install \
     python3 \
     python3-pip \
-    python3-protobuf \
-    cmake \
     clang-format \
     git \
     curl \
@@ -13,7 +11,6 @@ RUN apt-get update \
     emacs-nox \
     slime \
     elpa-paredit \
-    unzip \
     wget
 
 RUN python3 -m pip install --upgrade pip
