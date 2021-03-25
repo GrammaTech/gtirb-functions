@@ -17,6 +17,7 @@ default:
 
 check-format:
   stage: check-format
+  before_script: []
   script:
     - pre-commit run --all-files --show-diff-on-failure
     # helper message for new committers
