@@ -65,7 +65,6 @@ test_package:
 
 export_external:
   stage: deploy
-  image: python:3.7-slim
   script:
     - pip install -r requirements-dev.txt
     - python3 setup.py bdist_wheel --dist-dir=$CI_PROJECT_DIR/dist
@@ -78,7 +77,6 @@ export_external:
 
 export_internal:
   stage: deploy
-  image: python:3.7-slim
   script:
     - pip install -r requirements-dev.txt
     - python3 setup.py bdist_wheel --dist-dir=$CI_PROJECT_DIR/dist
