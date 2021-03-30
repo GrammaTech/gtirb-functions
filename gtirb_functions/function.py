@@ -12,6 +12,8 @@
 #
 import collections
 import gtirb
+import typing
+import uuid
 
 
 class Function(object):
@@ -21,11 +23,11 @@ class Function(object):
 
     def __init__(
         self,
-        uuid,
-        entryBlocks=None,
-        blocks=None,
-        name_symbols=None,
-        exitBlocks=None,
+        uuid,  # type: uuid.UUID
+        entryBlocks=None,  # type: typing.Iterable[gtirb.CodeBlock]
+        blocks=None,  # type: typing.Iterable[gtirb.CodeBlock]
+        name_symbols=None,  # type: typing.Iterable[gtirb.Symbol]
+        exitBlocks=None,  # type: typing.Iterable[gtirb.CodeBlock]
     ):
         """Construct a new function.
 
@@ -51,6 +53,7 @@ class Function(object):
 
     @classmethod
     def build_functions(cls, module):
+        # type: (gtirb.Module) -> typing.List["Function"]
         """Given a module, generate all the functions accosicated with it."""
 
         symbols = collections.defaultdict(set)
@@ -75,6 +78,7 @@ class Function(object):
         return functions
 
     def get_name(self):
+        # type: () -> str
         """Get the name of this function as a str."""
 
         names = [s.name for s in self._name_symbols]
@@ -86,11 +90,13 @@ class Function(object):
             return "<unknown>"
 
     def get_entry_blocks(self):
+        # type: () -> typing.Set[gtirb.CodeBlock]
         """Get the set of entry blocks into this function."""
 
         return self._entryBlocks
 
     def get_exit_blocks(self):
+        # type: () -> typing.Set[gtirb.CodeBlock]
         """Get the set of exit blocks out of this function."""
 
         if self._exit_blocks is None:
@@ -108,15 +114,27 @@ class Function(object):
         return self._exit_blocks
 
     def get_all_blocks(self):
+        # type: () -> typing.Set[gtirb.CodeBlock]
         """Get all blocks in this function."""
 
         return self._blocks
 
     @property
     def uuid(self):
+        # type: () -> typing.Set[uuid.UUID]
         """Gets the UUID for the function."""
 
         return self._uuid
+
+    @property
+    def name_symbols(self):
+        # type: () -> typing.List[gtirb.Symbol]
+        return self._name_symbols
+
+    @property
+    def names(self):
+        # type: () -> typing.List[str]
+        return [s.name for s in self.name_symbols]
 
     def __repr__(self):
         def block_addr(x):
