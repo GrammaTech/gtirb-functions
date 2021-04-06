@@ -90,7 +90,7 @@ class Function(object):
             return "<unknown>"
 
     def get_entry_blocks(self):
-        # type: () -> typing.Set[gtirb.CodeBlock]
+        # type: () -> typing.Optional[typing.Set[gtirb.CodeBlock]]
         """Get the set of entry blocks into this function."""
 
         return self._entryBlocks
@@ -114,7 +114,7 @@ class Function(object):
         return self._exit_blocks
 
     def get_all_blocks(self):
-        # type: () -> typing.Set[gtirb.CodeBlock]
+        # type: () -> typing.Optional[typing.Set[gtirb.CodeBlock]]
         """Get all blocks in this function."""
 
         return self._blocks
@@ -128,13 +128,13 @@ class Function(object):
 
     @property
     def name_symbols(self):
-        # type: () -> typing.List[gtirb.Symbol]
+        # type: () -> typing.Optional[typing.List[gtirb.Symbol]]
         return self._name_symbols
 
     @property
     def names(self):
         # type: () -> typing.List[str]
-        return [s.name for s in self.name_symbols]
+        return [s.name for s in (self.name_symbols or [])]
 
     def __repr__(self):
         def block_addr(x):
