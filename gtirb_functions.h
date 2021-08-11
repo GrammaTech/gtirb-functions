@@ -9,11 +9,6 @@ using namespace std;
 
 namespace gtirb{
     class Function {
-        /* A thin wrapper around the code blocks and auxillary data
-        * that consititute a function in GTIRB.
-        * This class does not own any of its own data; 
-        * everything is a reference to data in the underlying module
-        */
         using CodeBlockSet  = unordered_set<CodeBlock *>;
         private: 
             UUID uuid;
@@ -38,6 +33,8 @@ namespace gtirb{
         auto & get_blocks(){return *blocks;}
         auto & get_name_symbols(){return *name_symbols}
         UUID get_uuid() {return uuid;}
+
+
         std::array<string> get_names(){
             auto arr = array<string>{};
             if (self.name_symbols){
@@ -47,7 +44,9 @@ namespace gtirb{
             }
             return arr;
         }
-        std::string get_name_long(){
+
+
+        std::string get_name(){
             int n_names = std::length(this->name_symbols);
             switch (n_names){
                 case 0:
