@@ -17,4 +17,7 @@ vgcore.*
 *.fasl
 
 #gtirb headers
-include/
+/include/
+Pipfile.lock
+pyproject.toml
+Pipfile
