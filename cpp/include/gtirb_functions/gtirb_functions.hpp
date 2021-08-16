@@ -2,12 +2,12 @@
 #include <Context.hpp>
 #include <AuxDataSchema.hpp>
 #include <optional>
-#include <array>
+#include <vector>
+#include <unordered_set>
 
 #ifndef GTIRB_FN_H
 #define GTIRB_FN_H
 
-using namespace std;
 
 namespace gtirb{
 
@@ -16,37 +16,52 @@ namespace gtirb{
         /// about what the function should be named and which entry and 
         /// exit blocks it has.
 
-        using CodeBlockSet  = unordered_set<CodeBlock *>;
+        using CodeBlockSet  = std::unordered_set<CodeBlock *>;
         using SymbolSet = Module::SymbolSet;
 
         UUID uuid;
-        optional<CodeBlockSet> entry_blocks {};
-        optional<CodeBlockSet> blocks {};
-        optional<SymbolSet> name_symbols {};
-        optional<CodeBlockSet> exit_blocks {};
-        
+        std::optional<CodeBlockSet> entry_blocks = std::nullopt;
+        std::optional<CodeBlockSet> blocks = std::nullopt;
+        std::optional<SymbolSet> name_symbols = std::nullopt;
+        std::optional<CodeBlockSet> exit_blocks = std::nullopt;
+        std::string long_name;
+        void set_name(void);
 
         public:
-        Function(UUID Uuid, optional<CodeBlockSet> Entries, 
-            optional<CodeBlockSet> Blocks, optional<SymbolSet> NameSymbols,
-            optional<CodeBlockSet> ExitBlocks)
-            : uuid(Uuid), entry_blocks(Entries), name_symbols(NameSymbols),
-                exit_blocks(ExitBlocks) {};
+        Function(UUID Uuid, 
+                 std::optional<CodeBlockSet> Entries, 
+                 std::optional<CodeBlockSet> Blocks,
+                  std::optional<SymbolSet> NameSymbols,
+                  std::optional<CodeBlockSet> ExitBlocks
+                  ): 
+                  uuid(Uuid), 
+                  entry_blocks(Entries), 
+                  name_symbols(NameSymbols),
+                  exit_blocks(ExitBlocks) {set_name()};
 
 
-        Function( UUID Uuid, CodeBlockSet Entries, 
-                  CodeBlockSet Blocks, SymbolSet NameSymbols):
-            Function(Uuid, make_optional(Entries), make_optional(Blocks),
-            make_optional(NameSymbols), optional::nullopt){}; 
+        Function( UUID Uuid, 
+                  CodeBlockSet Entries, 
+                  CodeBlockSet Blocks, 
+                  SymbolSet NameSymbols
+                  ):
+                 uuid(Uuid), 
+                 entry_blocks(make_optional(Entries)),
+                 blocks(make_optional(Blocks)),
+                 name_symbols(make_optional(NameSymbols)),
+                 exit_blocks(std::nullopt){set_name()};
+
+        Function(UUID Uuid):
+            uuid(Uuid) {set_name()};
         
-        optional<CodeBlockSet> & get_entry_blocks(){ return entry_blocks; }
-        const optional<CodeBlockSet> & get_entry_blocks() { return entry_blocks; }
+        std::optional<CodeBlockSet> & get_entry_blocks(){ return entry_blocks; }
+        const std::optional<CodeBlockSet> & get_entry_blocks() { return entry_blocks; }
 
-        optional<CodeBlockSet> & get_exit_blocks(){ return exit_blocks; }
-        const optional<CodeBlockSet> & get_exit_blocks(){ return exit_blocks; }
+        std::optional<CodeBlockSet> & get_exit_blocks(){ return exit_blocks; }
+        const std::optional<CodeBlockSet> & get_exit_blocks(){ return exit_blocks; }
         
-        optional<CodeBlockSet> & get_all_blocks(){ return blocks; }
-        const optional<CodeBlockSet> & get_all_blocks(){ return blocks; }
+        std::optional<CodeBlockSet> & get_all_blocks(){ return blocks; }
+        const std::optional<CodeBlockSet> & get_all_blocks(){ return blocks; }
         
         SymbolSet & get_name_symbols(){ return name_symbols }
         const SymbolSet & get_name_symbols() { return name_symbols; }
@@ -58,8 +73,8 @@ namespace gtirb{
         const UUID & get_uuid() { return uuid; }
 
         
-        std::array<string&> get_names(){
-            std::array<string&> arr{};
+        std::vector<string&> get_names(){
+            std::vector<string&> arr{};
             if (name_symbols){
                 for (const auto & name_symbol: *name_symbols){
                     arr.insert(name_symbol->second);
@@ -71,25 +86,6 @@ namespace gtirb{
         /// \brief Get the name of this function, as a string
 
         std::string get_name(){
-            int n_names = std::length(this->name_symbols);
-            switch (n_names){
-                case 0:
-                    return "<unknown>";
-                case 1:
-                    return this->name_symbols[0].name;
-                default:
-                    string name = this->name_symbols[0].name;
-                    for (auto idx = 1; idx < n_names; i++){
-                        name += "(a.k.a ";
-                        name += this->name_symbols[i].name;
-                        if (idx + 1 < n_names){
-                            name += ", ";
-                        }
-                    }
-                    name += ')';
-                    return name;
-
-            }
         }
 
         /// \brief Create all the functions present in a \ref Module
@@ -97,8 +93,8 @@ namespace gtirb{
         /// \param C The current GTIRB \ref Context
         /// \param mod 
 
-        /// \return an array containing the Functions in this module (possibly empty)
-        static array<Function> build_functions(const Context & C, const Module & mod);
+        /// \return an vector containing the Functions in this module (possibly empty)
+        static vector<Function> build_functions(const Context & C, const Module & mod);
     
     }
 
