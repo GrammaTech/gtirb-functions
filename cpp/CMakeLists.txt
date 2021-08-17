@@ -1,5 +1,6 @@
 # * Need 3.10 to support CXX_STANDARD=17
 # * Need 3.13 to support "add_link_options(--coverage)"
+
 cmake_minimum_required(VERSION 3.13.0)
 
 # Read version.txt and setup project
@@ -16,11 +17,11 @@ set(HELLO_PATCH_VERSION ${CMAKE_MATCH_1})
 
 cmake_policy(SET CMP0048 NEW)
 project(
-  hello
+  gtirb_functions
   VERSION "${HELLO_MAJOR_VERSION}.${HELLO_MINOR_VERSION}.${HELLO_PATCH_VERSION}"
 )
 
-option(ENABLE_CONAN "Use Conan to inject dependencies" ON)
+option(ENABLE_CONAN "Use Conan to inject dependencies" OFF)
 
 option(ENABLE_CODE_COVERAGE
        "Build with instrumentation for collecting code coverage" OFF)
@@ -62,7 +63,7 @@ option(HELLO_STRIP_DEBUG_SYMBOLS
 # ---------------------------------------------------------------------------
 # Dependencies
 # ---------------------------------------------------------------------------
-find_package(ref_ptr REQUIRED)
+# find_package(gtirb REQUIRED)
 
 # ---------------------------------------------------------------------------
 # Global settings
@@ -193,25 +194,25 @@ add_subdirectory(src)
 # ---------------------------------------------------------------------------
 # Export config for use by other CMake projects
 # ---------------------------------------------------------------------------
-export(TARGETS hello FILE "${CMAKE_CURRENT_BINARY_DIR}/helloTargets.cmake")
+export(TARGETS gtirb_functions FILE "${CMAKE_CURRENT_BINARY_DIR}/gtirbFunctionsTargets.cmake")
 
 # Build tree config
-configure_file("${CMAKE_CURRENT_LIST_DIR}/helloConfig.cmake.in"
-               "${CMAKE_CURRENT_BINARY_DIR}/helloConfig.cmake")
+configure_file("${CMAKE_CURRENT_LIST_DIR}/gtirbFunctionsConfig.cmake.in"
+               "${CMAKE_CURRENT_BINARY_DIR}/gtirbFunctionsConfig.cmake")
 
 # Install tree config
-configure_file("${CMAKE_CURRENT_LIST_DIR}/helloConfig.cmake.in"
-               "${CMAKE_CURRENT_BINARY_DIR}/export/helloConfig.cmake")
+configure_file("${CMAKE_CURRENT_LIST_DIR}/gtirbFunctionsConfig.cmake.in"
+               "${CMAKE_CURRENT_BINARY_DIR}/export/gtirbFunctionsConfig.cmake")
 install(
-  FILES ${CMAKE_CURRENT_BINARY_DIR}/export/helloConfig.cmake
-  DESTINATION lib/hello
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/export/gtirbFunctionsConfig.cmake
+  DESTINATION lib/gtirb_functions
   COMPONENT cmake_config)
 install(
-  EXPORT helloTargets
-  DESTINATION lib/hello
+  EXPORT gtirb_functionsTargets
+  DESTINATION lib/gtirb_functions
   COMPONENT cmake_target)
 
-export(PACKAGE hello)
+export(PACKAGE gtirb_functions)
 
 # ---------------------------------------------------------------------------
 # Debian/RPM package generation
@@ -233,6 +234,6 @@ set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_CURRENT_SOURCE_DIR}/README.md)
 
 set(CPACK_DEBIAN_PACKAGE_SECTION devel)
 
-set(CPACK_HELLO_VERSION "${hello_VERSION}")
+set(CPACK_GTIRB_FUNCTIONS_VERSION "${GTIRB_FUNCTIONS_VERSION}")
 
 include(CPack)

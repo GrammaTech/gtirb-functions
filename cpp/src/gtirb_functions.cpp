@@ -60,10 +60,12 @@ Function::build_functions(const Context& C, const Module& mod) const {
     auto fn_blocks_uuid = all_fn_blocks[id];
     auto entry_blocks = Function::CodeBlockSet();
     auto fn_blocks = Function::CodeBlockSet();
+
     for (const auto& id : fn_entry.second) {
       CodeBlock* block = cast<CodeBlock, Node>(Node::getByUUID(C, id));
       entry_blocks.insert(block);
     }
+
     for (const auto& b : fn_blocks_uuid) {
       for (const auto& s : symbols[b]) {
         syms.insert(s);
@@ -71,8 +73,10 @@ Function::build_functions(const Context& C, const Module& mod) const {
       CodeBlock* block = cast<CodeBlock, Node>(Node::getByUUID(C, b));
       fn_blocks.insert(block);
     }
-                functions.emplace_back(fn_entry.first, entry_blocks, fn_blocks, syms));
+    functions.emplace_back(fn_entry.first, entry_blocks, fn_blocks, syms));
   }
+
   return functions;
 }
+
 } // namespace gtirb
