@@ -13,8 +13,10 @@ void Function::set_name(void) {
   switch (n_names) {
   case 0:
     this->long_name = "<unknown>";
+    return;
   case 1:
     this->long_name = (*(begin(nsyms)))->getName();
+    return;
   default:
     size_t i = 0;
     for (auto sym = begin(nsyms); sym != end(nsyms); sym++) {
@@ -33,7 +35,7 @@ void Function::set_name(void) {
   }
 }
 
-static std::vector<Function>
+std::vector<Function>
 Function::build_functions(const Context& C, const Module& mod) {
   // build table of symbols by referent.UUID
   auto symbols = std::unordered_map<UUID, SymbolSet>{};
@@ -60,15 +62,15 @@ Function::build_functions(const Context& C, const Module& mod) {
   for (const auto& fn_entry : *function_entries) {
     Function::SymbolSet l_syms = Function::SymbolSet();
 
-    auto id = fn_entry.first;
-    auto fn_blocks_uuid_iter = all_fn_blocks->find(id);
+    auto id1 = fn_entry.first;
+    auto fn_blocks_uuid_iter = all_fn_blocks->find(id1);
     if (fn_blocks_uuid_iter == all_fn_blocks->end()){continue;}
     auto fn_blocks_uuid = (*fn_blocks_uuid_iter).second;
     auto entry_blocks = Function::CodeBlockSet();
     auto fn_blocks = Function::CodeBlockSet();
 
-    for (const auto& id : fn_entry.second) {
-      auto block = cast<CodeBlock>(Node::getByUUID(C, id));
+    for (const auto& id2 : fn_entry.second) {
+      auto block = cast<CodeBlock>(Node::getByUUID(C, id2));
       entry_blocks.insert(block);
     }
 

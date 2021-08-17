@@ -31,7 +31,7 @@ public:
            std::optional<CodeBlockSet> Blocks,
            std::optional<SymbolSet> NameSymbols,
            std::optional<CodeBlockSet> ExitBlocks)
-      : uuid(Uuid), entry_blocks(Entries), name_symbols(NameSymbols),
+      : uuid(Uuid), entry_blocks(Entries), blocks(Blocks), name_symbols(NameSymbols),
         exit_blocks(ExitBlocks){set_name();};
 
   Function(UUID Uuid, CodeBlockSet Entries, CodeBlockSet Blocks,
@@ -57,8 +57,8 @@ public:
   UUID get_uuid() { return uuid; }
   const UUID get_const_uuid() { return uuid; }
 
-  std::vector<std::string&> get_names() {
-    std::vector<std::string&> arr{};
+  std::vector<std::string> get_names() {
+    std::vector<std::string> arr{};
     if (name_symbols) {
       for (const auto& name_symbol : *name_symbols) {
         auto name = name_symbol->getName();
@@ -70,7 +70,7 @@ public:
 
   /// \brief Get the name of this function, as a string
 
-  std::string get_name() {};
+  std::string get_name();
 
   /// \brief Create all the functions present in a \ref Module
   ///
