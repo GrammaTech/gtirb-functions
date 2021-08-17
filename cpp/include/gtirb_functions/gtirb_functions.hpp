@@ -1,6 +1,6 @@
-#include <AuxDataSchema.hpp>
-#include <Context.hpp>
-#include <Module.hpp>
+#include <gtirb/AuxDataSchema.hpp>
+#include <gtirb/Context.hpp>
+#include <gtirb/Module.hpp>
 #include <optional>
 #include <unordered_set>
 #include <vector>

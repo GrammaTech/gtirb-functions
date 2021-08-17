@@ -1,5 +1,5 @@
-#include "gtirb_functions.hpp"
-#include <Casting.hpp>
+#include "gtirb_functions/gtirb_functions.hpp"
+#include <gtirb/Casting.hpp>
 
 namespace gtirb {
 

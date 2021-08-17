@@ -13,12 +13,13 @@ set_target_properties(
   gtirb_functions PROPERTIES VERSION ${GTIRB_FUNCTIONS_VERSION}
                              SOVERSION ${GTIRB_FUNCTION_MAJOR_VERSION})
 
+
 target_include_directories(
   gtirb_functions PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>)
-target_include_directories(
-  gtirb_functions PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>)
-target_include_directories(
-  gtirb_functions PUBLIC $<BUILD_INTERFACE: /usr/lib/include>)
+target_include_directories(gtirb_functions PUBLIC /usr/include)
+# target_include_directories(
+#  gtirb_functions PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>)
+
 
 install_linux_debug_info(gtirb_functions gtirb_functions-debug-file)
 
