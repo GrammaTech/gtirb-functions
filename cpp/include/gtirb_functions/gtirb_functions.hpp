@@ -15,8 +15,8 @@ class Function {
   /// about what the function should be named and which entry and
   /// exit blocks it has.
 
-  using CodeBlockSet = std::unordered_set<CodeBlock*>;
-  using SymbolSet = Module::SymbolSet;
+  using CodeBlockSet = std::unordered_set<const CodeBlock*>;
+  using SymbolSet = std::unordered_set<const Symbol *>;
 
   UUID uuid;
   std::optional<CodeBlockSet> entry_blocks = std::nullopt;
@@ -32,38 +32,37 @@ public:
            std::optional<SymbolSet> NameSymbols,
            std::optional<CodeBlockSet> ExitBlocks)
       : uuid(Uuid), entry_blocks(Entries), name_symbols(NameSymbols),
-        exit_blocks(ExitBlocks){set_name()};
+        exit_blocks(ExitBlocks){set_name();};
 
   Function(UUID Uuid, CodeBlockSet Entries, CodeBlockSet Blocks,
            SymbolSet NameSymbols)
       : uuid(Uuid), entry_blocks(make_optional(Entries)),
         blocks(make_optional(Blocks)), name_symbols(make_optional(NameSymbols)),
-        exit_blocks(std::nullopt){set_name()};
+        exit_blocks(std::nullopt){set_name();};
 
-  Function(UUID Uuid) : uuid(Uuid){set_name()};
+  Function(UUID Uuid) : uuid(Uuid){set_name();};
 
   std::optional<CodeBlockSet>& get_entry_blocks() { return entry_blocks; }
-  const std::optional<CodeBlockSet>& get_entry_blocks() { return entry_blocks; }
+  const std::optional<CodeBlockSet>& get_const_entry_blocks() { return entry_blocks; }
 
   std::optional<CodeBlockSet>& get_exit_blocks() { return exit_blocks; }
-  const std::optional<CodeBlockSet>& get_exit_blocks() { return exit_blocks; }
+  const std::optional<CodeBlockSet>& get_const_exit_blocks() { return exit_blocks; }
 
   std::optional<CodeBlockSet>& get_all_blocks() { return blocks; }
-  const std::optional<CodeBlockSet>& get_all_blocks() { return blocks; }
+  const std::optional<CodeBlockSet>& get_const_all_blocks() { return blocks; }
 
-  SymbolSet& get_name_symbols() { return name_symbols }
-  const SymbolSet& get_name_symbols() { return name_symbols; }
+  std::optional<SymbolSet>& get_name_symbols() { return name_symbols; }
+  const std::optional<SymbolSet>& get_const_name_symbols() { return name_symbols; }
 
   UUID get_uuid() { return uuid; }
-  const UUID get_uuid() { return uuid; }
-  UUID& get_uuid() { return uuid; }
-  const UUID& get_uuid() { return uuid; }
+  const UUID get_const_uuid() { return uuid; }
 
-  std::vector<string&> get_names() {
-    std::vector<string&> arr{};
+  std::vector<std::string&> get_names() {
+    std::vector<std::string&> arr{};
     if (name_symbols) {
       for (const auto& name_symbol : *name_symbols) {
-        arr.insert(name_symbol->second);
+        auto name = name_symbol->getName();
+        arr.emplace_back(name);
       }
     }
     return arr;
@@ -71,7 +70,7 @@ public:
 
   /// \brief Get the name of this function, as a string
 
-  std::string get_name() {}
+  std::string get_name() {};
 
   /// \brief Create all the functions present in a \ref Module
   ///
@@ -79,8 +78,8 @@ public:
   /// \param mod
 
   /// \return an vector containing the Functions in this module (possibly empty)
-  static vector<Function> build_functions(const Context& C, const Module& mod);
-}
+  static std::vector<Function> build_functions(const Context& C, const Module& mod);
+};
 
-} // namespace gtirb
+}; // namespace gtirb
 #endif
