@@ -2,7 +2,7 @@
 configure_file("${CMAKE_SOURCE_DIR}/include/gtirb_functions/version.h.in"
                "${CMAKE_BINARY_DIR}/include/gtirb_functions/version.h" @ONLY)
 
-set(GTIRB_HEADERS
+set(GTIRB_FUNCTION_HEADERS
     "${CMAKE_SOURCE_DIR}/include/gtirb_functions/gtirb_functions.hpp"
     "${CMAKE_BINARY_DIR}/include/gtirb_functions/version.h")
 
@@ -17,6 +17,8 @@ target_include_directories(
   gtirb_functions PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>)
 target_include_directories(
   gtirb_functions PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>)
+target_include_directories(
+  gtirb_functions PUBLIC $<BUILD_INTERFACE: /usr/lib/include>)
 
 install_linux_debug_info(gtirb_functions gtirb_functions-debug-file)
 
