@@ -18,7 +18,8 @@ set(GTIRB_FUNCTIONS_PATCH_VERSION ${CMAKE_MATCH_1})
 cmake_policy(SET CMP0048 NEW)
 project(
   gtirb_functions
-  VERSION "${GITRB_FUNCTIONS_MAJOR_VERSION}.${GTIRB_FUNCTIONS_MINOR_VERSION}.${GTIRB_FUNCTIONS_PATCH_VERSION}"
+  VERSION
+    "${GITRB_FUNCTIONS_MAJOR_VERSION}.${GTIRB_FUNCTIONS_MINOR_VERSION}.${GTIRB_FUNCTIONS_PATCH_VERSION}"
 )
 
 option(ENABLE_CONAN "Use Conan to inject dependencies" OFF)
@@ -196,7 +197,8 @@ add_subdirectory(src)
 # ---------------------------------------------------------------------------
 # Export config for use by other CMake projects
 # ---------------------------------------------------------------------------
-export(TARGETS gtirb_functions FILE "${CMAKE_CURRENT_BINARY_DIR}/gtirbFunctionsTargets.cmake")
+export(TARGETS gtirb_functions
+       FILE "${CMAKE_CURRENT_BINARY_DIR}/gtirbFunctionsTargets.cmake")
 
 # Build tree config
 configure_file("${CMAKE_CURRENT_LIST_DIR}/gtirbFunctionsConfig.cmake.in"
