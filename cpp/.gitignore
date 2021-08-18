@@ -8,3 +8,5 @@ googletest*/
 include/gtirb_functions/version.h
 CMakeFiles/
 **/Makefile
+/bin
+/lib/

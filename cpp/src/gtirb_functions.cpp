@@ -5,7 +5,7 @@
 namespace gtirb {
 
 void Function::set_name(void) {
-  SymbolSet nsyms = this->name_symbols_;
+  SymbolSet nsyms = this->NameSymbols;
   size_t n_names = nsyms.size();
   switch (n_names) {
   case 0:
@@ -16,10 +16,10 @@ void Function::set_name(void) {
     return;
   default:
     size_t i = 0;
-    this->long_name = this->canon_name->getName();
+    this->long_name = this->CanonName->getName();
     this->long_name += " (a.k.a "; 
     for (auto sym = begin(nsyms); sym != end(nsyms); sym++) {
-      if (*sym != this->canon_name) {
+      if (*sym != this->CanonName) {
         this->long_name += (*sym)->getName();
         if (i + 1 < n_names) {
           this->long_name += ", ";

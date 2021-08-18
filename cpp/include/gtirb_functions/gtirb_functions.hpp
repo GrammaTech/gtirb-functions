@@ -19,15 +19,13 @@ class Function {
   using CodeBlockSet = std::unordered_set<const CodeBlock*>;
   using SymbolSet = std::unordered_set<const Symbol *>;
 
-
-
   UUID uuid;
-  CodeBlockSet entry_blocks_;
+  CodeBlockSet EntryBlocks;
   CodeBlockSet blocks ;
-  SymbolSet name_symbols_;
-  CodeBlockSet exit_blocks_ ;
+  SymbolSet NameSymbols;
+  CodeBlockSet ExitBlocks ;
   std::string long_name;
-  const Symbol * canon_name;
+  const Symbol * CanonName;
 
   // helper functions
   void set_name(void);
@@ -37,35 +35,47 @@ class Function {
   Function(UUID Uuid, 
            CodeBlockSet Entries,
            CodeBlockSet Blocks,
-           SymbolSet NameSymbols,
-           CodeBlockSet ExitBlocks,
-           const Symbol * CanonName = nullptr)
-      : uuid(Uuid), entry_blocks_(Entries), 
-        blocks(Blocks), name_symbols_(NameSymbols),
-        exit_blocks_(ExitBlocks), canon_name(CanonName)
+           SymbolSet Names,
+           CodeBlockSet ExitBlocks_,
+           const Symbol * canonName = nullptr)
+      : uuid(Uuid), EntryBlocks(Entries), 
+        blocks(Blocks), NameSymbols(Names),
+        ExitBlocks(ExitBlocks_), CanonName(canonName)
         {set_name();};
   
   public:
+
+  //Factory 
+
+  /// \brief Create all the functions present in a \ref Module
+  ///
+  /// \param C The current GTIRB \ref Context
+  /// \param mod
+
+  /// \return an vector containing the Functions in this module (possibly empty)
+  static std::vector<Function> build_functions(const Context& C, const Module& mod);
+
+  /// \section Iterators
 
   using code_block_iterator = CodeBlockSet::const_iterator;
 
   using code_block_range  = ::boost::iterator_range<code_block_iterator>;
 
   code_block_iterator entry_blocks_begin(){
-     return entry_blocks_.begin() ;}
+     return EntryBlocks.begin() ;}
   code_block_iterator entry_blocks_end() {
-     return entry_blocks_.end(); }
+     return EntryBlocks.end(); }
   code_block_range entry_blocks() {
-     return  {entry_blocks_.begin(), entry_blocks_.end()};
+     return  {EntryBlocks.begin(), EntryBlocks.end()};
   }
 
   code_block_iterator exit_blocks_begin() {
-    return exit_blocks_.begin();}
+    return ExitBlocks.begin();}
   code_block_iterator exit_blocks_end() {
-    return exit_blocks_.end();}
+    return ExitBlocks.end();}
 
   code_block_range exit_blocks() {
-    return {exit_blocks_.begin(), exit_blocks_.end()};}
+    return {ExitBlocks.begin(), ExitBlocks.end()};}
 
   code_block_iterator all_blocks_begin() { 
     return blocks.begin(); }
@@ -79,26 +89,18 @@ class Function {
   using symbol_range = ::boost::iterator_range<symbol_iterator>;
 
   symbol_iterator name_symbols_begin() {
-    return name_symbols_.begin();}
+    return NameSymbols.begin();}
   symbol_iterator name_symbols_end() {
-    return name_symbols_.end();}
+    return NameSymbols.end();}
 
   symbol_range name_symbols(){
-    return {name_symbols_.begin(), name_symbols_.end()};}
+    return {NameSymbols.begin(), NameSymbols.end()};}
 
-  const UUID get_uuid() { return uuid; }
+  const UUID & getUUID() { return uuid; }
 
-  const Symbol * get_name() {return canon_name;}
+  const Symbol * getName() {return CanonName;}
   const std::string & get_long_name() {return long_name;}
 
-
-  /// \brief Create all the functions present in a \ref Module
-  ///
-  /// \param C The current GTIRB \ref Context
-  /// \param mod
-
-  /// \return an vector containing the Functions in this module (possibly empty)
-  static std::vector<Function> build_functions(const Context& C, const Module& mod);
 };
 
 }; // namespace gtirb
