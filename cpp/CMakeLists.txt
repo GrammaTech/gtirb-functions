@@ -26,6 +26,8 @@ option(ENABLE_CONAN "Use Conan to inject dependencies" OFF)
 option(ENABLE_CODE_COVERAGE
        "Build with instrumentation for collecting code coverage" OFF)
 
+option(GTIRB_FUNCTION_ENABLE_TESTS "run tests" ON)
+
 if(ENABLE_CODE_COVERAGE)
   if(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU OR ${CMAKE_CXX_COMPILER_ID} STREQUAL
                                               Clang)

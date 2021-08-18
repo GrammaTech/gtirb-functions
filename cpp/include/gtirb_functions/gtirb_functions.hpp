@@ -1,6 +1,7 @@
 #include <gtirb/AuxDataSchema.hpp>
 #include <gtirb/Context.hpp>
 #include <gtirb/Module.hpp>
+#include <boost/range.hpp>
 #include <optional>
 #include <unordered_set>
 #include <vector>
@@ -18,59 +19,78 @@ class Function {
   using CodeBlockSet = std::unordered_set<const CodeBlock*>;
   using SymbolSet = std::unordered_set<const Symbol *>;
 
+
+
   UUID uuid;
-  std::optional<CodeBlockSet> entry_blocks = std::nullopt;
-  std::optional<CodeBlockSet> blocks = std::nullopt;
-  std::optional<SymbolSet> name_symbols = std::nullopt;
-  std::optional<CodeBlockSet> exit_blocks = std::nullopt;
+  CodeBlockSet entry_blocks_;
+  CodeBlockSet blocks ;
+  SymbolSet name_symbols_;
+  CodeBlockSet exit_blocks_ ;
   std::string long_name;
+  const Symbol * canon_name;
+
+  // helper functions
   void set_name(void);
+  static CodeBlockSet makeExitBlocks(const Module & M, const CodeBlockSet & Blocks);
 
-public:
-  Function(UUID Uuid, std::optional<CodeBlockSet> Entries,
-           std::optional<CodeBlockSet> Blocks,
-           std::optional<SymbolSet> NameSymbols,
-           std::optional<CodeBlockSet> ExitBlocks)
-      : uuid(Uuid), entry_blocks(Entries), blocks(Blocks), name_symbols(NameSymbols),
-        exit_blocks(ExitBlocks){set_name();};
+  // Constructor;
+  Function(UUID Uuid, 
+           CodeBlockSet Entries,
+           CodeBlockSet Blocks,
+           SymbolSet NameSymbols,
+           CodeBlockSet ExitBlocks,
+           const Symbol * CanonName = nullptr)
+      : uuid(Uuid), entry_blocks_(Entries), 
+        blocks(Blocks), name_symbols_(NameSymbols),
+        exit_blocks_(ExitBlocks), canon_name(CanonName)
+        {set_name();};
+  
+  public:
 
-  Function(UUID Uuid, CodeBlockSet Entries, CodeBlockSet Blocks,
-           SymbolSet NameSymbols)
-      : uuid(Uuid), entry_blocks(make_optional(Entries)),
-        blocks(make_optional(Blocks)), name_symbols(make_optional(NameSymbols)),
-        exit_blocks(std::nullopt){set_name();};
+  using code_block_iterator = CodeBlockSet::const_iterator;
 
-  Function(UUID Uuid) : uuid(Uuid){set_name();};
+  using code_block_range  = ::boost::iterator_range<code_block_iterator>;
 
-  std::optional<CodeBlockSet>& get_entry_blocks() { return entry_blocks; }
-  const std::optional<CodeBlockSet>& get_const_entry_blocks() { return entry_blocks; }
-
-  std::optional<CodeBlockSet>& get_exit_blocks() { return exit_blocks; }
-  const std::optional<CodeBlockSet>& get_const_exit_blocks() { return exit_blocks; }
-
-  std::optional<CodeBlockSet>& get_all_blocks() { return blocks; }
-  const std::optional<CodeBlockSet>& get_const_all_blocks() { return blocks; }
-
-  std::optional<SymbolSet>& get_name_symbols() { return name_symbols; }
-  const std::optional<SymbolSet>& get_const_name_symbols() { return name_symbols; }
-
-  UUID get_uuid() { return uuid; }
-  const UUID get_const_uuid() { return uuid; }
-
-  std::vector<std::string> get_names() {
-    std::vector<std::string> arr{};
-    if (name_symbols) {
-      for (const auto& name_symbol : *name_symbols) {
-        auto name = name_symbol->getName();
-        arr.emplace_back(name);
-      }
-    }
-    return arr;
+  code_block_iterator entry_blocks_begin(){
+     return entry_blocks_.begin() ;}
+  code_block_iterator entry_blocks_end() {
+     return entry_blocks_.end(); }
+  code_block_range entry_blocks() {
+     return  {entry_blocks_.begin(), entry_blocks_.end()};
   }
 
-  /// \brief Get the name of this function, as a string
+  code_block_iterator exit_blocks_begin() {
+    return exit_blocks_.begin();}
+  code_block_iterator exit_blocks_end() {
+    return exit_blocks_.end();}
 
-  std::string get_name();
+  code_block_range exit_blocks() {
+    return {exit_blocks_.begin(), exit_blocks_.end()};}
+
+  code_block_iterator all_blocks_begin() { 
+    return blocks.begin(); }
+  code_block_iterator all_blocks_end() { 
+    return blocks.end(); }
+  
+  code_block_range all_blocks() {
+    return {blocks.begin(), blocks.end()};}
+
+  using symbol_iterator = SymbolSet::const_iterator;
+  using symbol_range = ::boost::iterator_range<symbol_iterator>;
+
+  symbol_iterator name_symbols_begin() {
+    return name_symbols_.begin();}
+  symbol_iterator name_symbols_end() {
+    return name_symbols_.end();}
+
+  symbol_range name_symbols(){
+    return {name_symbols_.begin(), name_symbols_.end()};}
+
+  const UUID get_uuid() { return uuid; }
+
+  const Symbol * get_name() {return canon_name;}
+  const std::string & get_long_name() {return long_name;}
+
 
   /// \brief Create all the functions present in a \ref Module
   ///
