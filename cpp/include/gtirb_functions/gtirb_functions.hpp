@@ -20,13 +20,15 @@ class Function {
   using SymbolSet = std::unordered_set<const Symbol*>;
 
   UUID uuid;
+
   CodeBlockSet EntryBlocks;
   CodeBlockSet blocks;
-  SymbolSet NameSymbols;
   CodeBlockSet ExitBlocks;
-  std::string long_name;
-  const Symbol* CanonName;
+  SymbolSet NameSymbols;
 
+  const Symbol* CanonName;
+  std::string long_name;
+  
   // helper functions
   void set_name(void);
   static CodeBlockSet makeExitBlocks(const Module& M,
@@ -36,8 +38,8 @@ class Function {
   Function(UUID Uuid, CodeBlockSet Entries, CodeBlockSet Blocks,
            SymbolSet Names, CodeBlockSet ExitBlocks_,
            const Symbol* canonName = nullptr)
-      : uuid(Uuid), EntryBlocks(Entries), blocks(Blocks), NameSymbols(Names),
-        ExitBlocks(ExitBlocks_), CanonName(canonName) {
+      : uuid(Uuid), EntryBlocks(Entries), blocks(Blocks), ExitBlocks(ExitBlocks_),
+      NameSymbols(Names), CanonName(canonName) {
     set_name();
   };
 

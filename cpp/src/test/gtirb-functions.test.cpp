@@ -2,24 +2,32 @@
 #include <gtirb/gtirb.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
+#include <boost/graph/properties.hpp>
+#include <boost/graph/adjacency_list.hpp>
 #include <gtest/gtest.h>
 
 using namespace gtirb;
 using CodeBlockMap = std::map<int, CodeBlock*>;
-using GraphEdge = std::tuple<int, int>;
+using GraphEdge = std::tuple<int, int, EdgeType, ConditionalEdge>;
 
 template <size_t N>
-void _generate_subgraph(IR& IR, CodeBlockMap blocks,
+void _generate_subgraph(IR * IR, CodeBlockMap blocks,
                         std::array<GraphEdge, N> edges) {
-  auto& graph = IR.getCFG();
-
+  auto& graph = IR->getCFG();
   for (const auto& edge : edges) {
-    auto [src, dst] = edge;
+    auto &[src, dst, edge_type, cond] = edge;
     CodeBlock* b1 = blocks[src];
     CodeBlock* b2 = blocks[dst];
     addVertex(b1, graph);
     addVertex(b2, graph);
-    addEdge(b1, b2, graph);
+    auto const opt_edgedesc = addEdge(b1, b2, graph);
+    if (opt_edgedesc){
+      EdgeLabel prop {std::tuple{
+        cond, 
+        DirectEdge::IsDirect, 
+        edge_type}};
+      graph[*opt_edgedesc] = prop; 
+    }
   }
 }
 
@@ -64,11 +72,15 @@ protected:
     std::array<int, 6> inds{0, 1, 2, 3, 10, 11};
     blocks = make_blocks(C, interval, inds);
     // build the actual functions
-    std::array<GraphEdge, 5> edges{GraphEdge{0, 1}, GraphEdge{0, 2},
-                                   GraphEdge{1, 2}, GraphEdge{2, 3},
-                                   GraphEdge{10, 11}};
+    std::array<GraphEdge, 5> edges{
+      GraphEdge{0, 1, EdgeType::Fallthrough, ConditionalEdge::OnFalse},
+      GraphEdge{0, 2, EdgeType::Branch, ConditionalEdge::OnTrue},
+      GraphEdge{1, 2, EdgeType::Fallthrough, ConditionalEdge::OnFalse},
+      GraphEdge{2, 3, EdgeType::Return, ConditionalEdge::OnFalse},
+      GraphEdge{10, 11, EdgeType::Return, ConditionalEdge::OnFalse}
+      };
 
-    _generate_subgraph(*IR, blocks, edges);
+    _generate_subgraph(IR, blocks, edges);
     f1_symbol = Symbol::Create(C, blocks[0], "f1");
     M->addSymbol(f1_symbol);
     f1_blocks = {blocks[0]->getUUID(), blocks[1]->getUUID(),
@@ -103,28 +115,6 @@ protected:
 };
 
 TEST_F(TestData, TEST_SIZE) { assert(functions.size() == 2); }
-/*
-  for (auto & fun :functions){
-      auto name = fun.getName()->getName();
-      if (name == "f1"){
-          ASSERT_EQ(fun.getUUID(), f1);
-          ASSERT_EQ(*fun.entry_blocks_begin(), blocks[0]);
-          for (auto & block: fun.all_blocks()){
-              ASSERT_NE(f1_blocks.find(block->getUUID()), f1_blocks.end());
-          }
-          ASSERT_EQ(*fun.exit_blocks_begin(), blocks[2]);
-      }
-      else{
-          ASSERT_EQ(fun.getUUID(), f2);
-          ASSERT_EQ(*fun.entry_blocks_begin(), blocks[10]);
-          ASSERT_EQ(*fun.exit_blocks_begin(), blocks[10]);
-          for (auto & block : fun.all_blocks()) {
-              ASSERT_NE(f2_blocks.find(block->getUUID()), f2_blocks.end());
-          }
-
-      }
-  }
-}*/
 
 TEST_F(TestData, TEST_NAMES) {
   for (auto& fun : functions) {
@@ -148,7 +138,7 @@ TEST_F(TestData, TEST_ENTRIES) {
     auto& entry_block = *entry_iter;
     ASSERT_NE(entry_block, nullptr);
     auto expected = fun.getUUID() == f1 ? blocks[0] : blocks[10];
-    ASSERT_EQ(entry_block, expected);
+    EXPECT_EQ(entry_block, expected);
   }
 }
 
@@ -159,7 +149,7 @@ TEST_F(TestData, TEST_EXITS) {
     auto& exit_block = *exit_iter;
     ASSERT_NE(exit_block, nullptr);
     auto expected = fun.getUUID() == f1 ? blocks[2] : blocks[10];
-    ASSERT_EQ(exit_block, expected);
+    EXPECT_EQ(exit_block, expected);
   }
 }
 
@@ -169,7 +159,7 @@ TEST_F(TestData, TEST_BLOCKS) {
     for (auto& block : fun.all_blocks()) {
       fn_blocks.insert(block);
     }
-    auto expected_size = fun.getUUID() == f1 ? 3 : 1;
-    ASSERT_EQ(blocks.size(), expected_size);
+    auto expected_size = fun.getUUID() == f1 ? f1_blocks.size() : f2_blocks.size();
+    EXPECT_EQ(fn_blocks.size(), expected_size);
   }
 }
