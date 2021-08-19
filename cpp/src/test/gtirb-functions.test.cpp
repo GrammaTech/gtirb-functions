@@ -1,9 +1,9 @@
 #include "gtirb_functions/gtirb_functions.hpp"
 #include <gtirb/gtirb.hpp>
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/properties.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
-#include <boost/graph/properties.hpp>
-#include <boost/graph/adjacency_list.hpp>
 #include <gtest/gtest.h>
 
 using namespace gtirb;
@@ -11,22 +11,19 @@ using CodeBlockMap = std::map<int, CodeBlock*>;
 using GraphEdge = std::tuple<int, int, EdgeType, ConditionalEdge>;
 
 template <size_t N>
-void _generate_subgraph(IR * IR, CodeBlockMap blocks,
+void _generate_subgraph(IR* IR, CodeBlockMap blocks,
                         std::array<GraphEdge, N> edges) {
   auto& graph = IR->getCFG();
   for (const auto& edge : edges) {
-    auto &[src, dst, edge_type, cond] = edge;
+    auto& [src, dst, edge_type, cond] = edge;
     CodeBlock* b1 = blocks[src];
     CodeBlock* b2 = blocks[dst];
     addVertex(b1, graph);
     addVertex(b2, graph);
     auto const opt_edgedesc = addEdge(b1, b2, graph);
-    if (opt_edgedesc){
-      EdgeLabel prop {std::tuple{
-        cond, 
-        DirectEdge::IsDirect, 
-        edge_type}};
-      graph[*opt_edgedesc] = prop; 
+    if (opt_edgedesc) {
+      EdgeLabel prop{std::tuple{cond, DirectEdge::IsDirect, edge_type}};
+      graph[*opt_edgedesc] = prop;
     }
   }
 }
@@ -73,12 +70,11 @@ protected:
     blocks = make_blocks(C, interval, inds);
     // build the actual functions
     std::array<GraphEdge, 5> edges{
-      GraphEdge{0, 1, EdgeType::Fallthrough, ConditionalEdge::OnFalse},
-      GraphEdge{0, 2, EdgeType::Branch, ConditionalEdge::OnTrue},
-      GraphEdge{1, 2, EdgeType::Fallthrough, ConditionalEdge::OnFalse},
-      GraphEdge{2, 3, EdgeType::Return, ConditionalEdge::OnFalse},
-      GraphEdge{10, 11, EdgeType::Return, ConditionalEdge::OnFalse}
-      };
+        GraphEdge{0, 1, EdgeType::Fallthrough, ConditionalEdge::OnFalse},
+        GraphEdge{0, 2, EdgeType::Branch, ConditionalEdge::OnTrue},
+        GraphEdge{1, 2, EdgeType::Fallthrough, ConditionalEdge::OnFalse},
+        GraphEdge{2, 3, EdgeType::Return, ConditionalEdge::OnFalse},
+        GraphEdge{10, 11, EdgeType::Return, ConditionalEdge::OnFalse}};
 
     _generate_subgraph(IR, blocks, edges);
     f1_symbol = Symbol::Create(C, blocks[0], "f1");
@@ -159,7 +155,8 @@ TEST_F(TestData, TEST_BLOCKS) {
     for (auto& block : fun.all_blocks()) {
       fn_blocks.insert(block);
     }
-    auto expected_size = fun.getUUID() == f1 ? f1_blocks.size() : f2_blocks.size();
+    auto expected_size =
+        fun.getUUID() == f1 ? f1_blocks.size() : f2_blocks.size();
     EXPECT_EQ(fn_blocks.size(), expected_size);
   }
 }
