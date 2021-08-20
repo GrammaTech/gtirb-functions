@@ -39,10 +39,10 @@ def branch_to_channel(branch):
 
 
 class Properties:
-    name = "hello"
+    name = "gtirb-functions"
     version = get_version()
-    rel_url = "research/templates/CPP"
-    exports_sources = "*"
+    rel_url = "rewriting/gtirb-functions"
+    exports_sources = "cpp/*"
 
     @property
     def description(self):
@@ -84,8 +84,8 @@ class Properties:
 class GtirbFunctionsConan(Properties, ConanFile):
     author = "GrammaTech Inc."
     generators = "cmake"
-    requires = "ref_ptr/1.0.0@gt+utils+ref_ptr/stable"
     settings = ("os", "compiler", "build_type", "arch")
+    license = "MIT"
 
     def configure(self):
         if (
@@ -102,7 +102,7 @@ class GtirbFunctionsConan(Properties, ConanFile):
         defs = {
             "CMAKE_VERBOSE_MAKEFILE:BOOL": "ON",
         }
-        cmake.configure(source_folder=".", defs=defs)
+        cmake.configure(source_folder="./", defs=defs)
         cmake.build()
         cmake.test(output_on_failure=True)
         cmake.install()

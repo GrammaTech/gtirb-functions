@@ -49,18 +49,18 @@ endif()
 # ---------------------------------------------------------------------------
 
 # Wrapper for BUILD_SHARED_LIBS which defaults to 'ON'
-option(HELLO_BUILD_SHARED_LIBS "Build shared libraries." ON)
-if(HELLO_BUILD_SHARED_LIBS)
+option(GTIRB_FUNCTION_BUILD_SHARED_LIBS "Build shared libraries." ON)
+if(GTIRB_FUNCTION_BUILD_SHARED_LIBS)
   set(BUILD_SHARED_LIBS ON)
 else()
   set(BUILD_SHARED_LIBS OFF)
 endif()
 
-option(HELLO_ENABLE_TESTS "Enable build and running unit tests." ON)
+option(GTIRB_FUNCTION_ENABLE_TESTS "Enable build and running unit tests." ON)
 
 # Determine whether or not to strip debug symbols and set the build-id. This is
 # only really needed when we are building ubuntu *-dbg packages
-option(HELLO_STRIP_DEBUG_SYMBOLS
+option(GTIRB_FUNCTION_STRIP_DEBUG_SYMBOLS
        "Whether or not to strip debug symbols and set the build-id." OFF)
 
 # ---------------------------------------------------------------------------
@@ -126,7 +126,7 @@ endif()
 # ---------------------------------------------------------------------------
 # Google Test Application
 # ---------------------------------------------------------------------------
-if(HELLO_ENABLE_TESTS)
+if(GTIRB_FUNCTION_ENABLE_TESTS)
   configure_file(CMakeLists.googletest googletest-download/CMakeLists.txt)
 
   execute_process(
@@ -170,7 +170,7 @@ function(install_linux_debug_info TARGET COMPONENT_NAME)
      AND NOT CYGWIN
      AND ("${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo"
           OR "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-     AND ${HELLO_STRIP_DEBUG_SYMBOLS})
+     AND ${GTIRB_FUNCTION_STRIP_DEBUG_SYMBOLS})
     string(
       RANDOM
       LENGTH 32
@@ -223,16 +223,15 @@ export(PACKAGE gtirb_functions)
 # ---------------------------------------------------------------------------
 set(CPACK_PROJECT_CONFIG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/cpack-config.cmake)
 
-set(CMAKE_PROJECT_HOMEPAGE_URL
-    https://git.grammatech.com/rewriting/Templates/CMake)
+#set(CMAKE_PROJECT_HOMEPAGE_URL
 
 set(CPACK_PACKAGE_VERSION_MAJOR ${GITRB_FUNCTIONS_MAJOR_VERSION})
 set(CPACK_PACKAGE_VERSION_MINOR ${GTIRB_FUNCTIONS_MINOR_VERSION})
 set(CPACK_PACKAGE_VERSION_PATCH ${GTIRB_FUNCTIONS_PATCH_VERSION})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Package description")
 set(CPACK_PACKAGE_VENDOR "GrammaTech Inc.")
-set(CPACK_PACKAGE_CONTACT someone@grammatech.com)
-set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_CURRENT_SOURCE_DIR}/README.md)
+set(CPACK_PACKAGE_CONTACT adavis@grammatech.com)
+#set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_CURRENT_SOURCE_DIR}/README.md)
 # set(CPACK_PACKAGE_RESOURCE_FILE_LICENSE
 # ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt)
 
