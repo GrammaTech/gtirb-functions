@@ -11,49 +11,56 @@
 
 namespace gtirb {
 
+/// \class Function serves as a thin wrapper around the function-related
+/// information in AuxData (FunctionEntries, FunctionBlocks, FunctionNames).
+
+/// A \class Function is read-only; any modifications to the underlying \class Module
+/// may invalidate it.
+
+///
+
 class Function {
-  /// A Function is a collection of code blocks, with information
-  /// about what the function should be named and which entry and
-  /// exit blocks it has.
 
   using CodeBlockSet = std::unordered_set<const CodeBlock*>;
   using SymbolSet = std::unordered_set<const Symbol*>;
 
-  UUID uuid;
+  UUID Uuid;
 
   CodeBlockSet EntryBlocks;
-  CodeBlockSet blocks;
   CodeBlockSet ExitBlocks;
+  CodeBlockSet AllBlocks;
+
   SymbolSet NameSymbols;
 
   const Symbol* CanonName;
-  std::string long_name;
+  std::string LongName;
 
   // helper functions
   void set_name(void);
-  static CodeBlockSet makeExitBlocks(const Module& M,
+  static CodeBlockSet findExitBlocks(const Module& M,
                                      const CodeBlockSet& Blocks);
 
   // Constructor;
-  Function(UUID Uuid, CodeBlockSet Entries, CodeBlockSet Blocks,
-           SymbolSet Names, CodeBlockSet ExitBlocks_,
-           const Symbol* canonName = nullptr)
-      : uuid(Uuid), EntryBlocks(Entries), blocks(Blocks),
-        ExitBlocks(ExitBlocks_), NameSymbols(Names), CanonName(canonName) {
+  Function( const UUID& Uuid_,
+            const CodeBlockSet& Entries, const CodeBlockSet& Exits,
+            const CodeBlockSet& Blocks,
+            const SymbolSet& Names, const Symbol* canonName = nullptr)
+      : Uuid(Uuid_), EntryBlocks(Entries), ExitBlocks(Exits),
+        AllBlocks(Blocks), NameSymbols(Names), CanonName(canonName) {
     set_name();
   };
 
 public:
-  // Factory
+  //
 
   /// \brief Create all the functions present in a \ref Module
   ///
   /// \param C The current GTIRB \ref Context
-  /// \param mod
+  /// \param Mod The \class Module
 
-  /// \return an vector containing the Functions in this module (possibly empty)
+  /// \return an vector containing the Functions in this module, possibly empty
   static std::vector<Function> build_functions(const Context& C,
-                                               const Module& mod);
+                                               const Module& Mod);
 
   /// \section Iterators
 
@@ -61,12 +68,14 @@ public:
 
   using code_block_range = ::boost::iterator_range<code_block_iterator>;
 
+  /// Iterate through the entry points of the function, in an arbitrary order
   code_block_iterator entry_blocks_begin() { return EntryBlocks.begin(); }
   code_block_iterator entry_blocks_end() { return EntryBlocks.end(); }
   code_block_range entry_blocks() {
     return {EntryBlocks.begin(), EntryBlocks.end()};
   }
 
+  /// Iterate through the exit blocks of the function, in an arbitrary order
   code_block_iterator exit_blocks_begin() { return ExitBlocks.begin(); }
   code_block_iterator exit_blocks_end() { return ExitBlocks.end(); }
 
@@ -74,14 +83,16 @@ public:
     return {ExitBlocks.begin(), ExitBlocks.end()};
   }
 
-  code_block_iterator all_blocks_begin() { return blocks.begin(); }
-  code_block_iterator all_blocks_end() { return blocks.end(); }
+  /// Iterate through the blocks of the function, in an arbitrary order
+  code_block_iterator all_blocks_begin() { return AllBlocks.begin(); }
+  code_block_iterator all_blocks_end() { return AllBlocks.end(); }
 
-  code_block_range all_blocks() { return {blocks.begin(), blocks.end()}; }
+  code_block_range all_blocks() { return { AllBlocks.begin(), AllBlocks.end()}; }
 
   using symbol_iterator = SymbolSet::const_iterator;
   using symbol_range = ::boost::iterator_range<symbol_iterator>;
 
+  /// Iterate through all names for the function, in an arbitrary order
   symbol_iterator name_symbols_begin() { return NameSymbols.begin(); }
   symbol_iterator name_symbols_end() { return NameSymbols.end(); }
 
@@ -89,10 +100,15 @@ public:
     return {NameSymbols.begin(), NameSymbols.end()};
   }
 
-  const UUID& getUUID() { return uuid; }
+  /// Get the UUID of the function
+  const UUID& getUUID() { return Uuid; }
 
+  /// Get the name of the function, as stored in AuxData
   const Symbol* getName() { return CanonName; }
-  const std::string& get_long_name() { return long_name; }
+
+  /// Get a view of the string representation of the names
+  /// associated with the function.
+  const std::string& getLongName() { return LongName; }
 };
 
 }; // namespace gtirb

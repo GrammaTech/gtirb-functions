@@ -5,125 +5,124 @@
 namespace gtirb {
 
 void Function::set_name(void) {
-  SymbolSet nsyms = this->NameSymbols;
-  size_t n_names = nsyms.size();
-  switch (n_names) {
+  switch (this->NameSymbols.size()) {
   case 0:
-    this->long_name = "<unknown>";
+    this->LongName = "<unknown>";
     return;
   case 1:
-    this->long_name = (*(begin(nsyms)))->getName();
+    this->LongName = (*(this->NameSymbols.begin()))->getName();
     return;
   default:
     size_t i = 0;
-    this->long_name = this->CanonName->getName();
-    this->long_name += " (a.k.a ";
-    for (auto sym = begin(nsyms); sym != end(nsyms); sym++) {
-      if (*sym != this->CanonName) {
-        this->long_name += (*sym)->getName();
-        if (i + 1 < n_names) {
-          this->long_name += ", ";
+    size_t Length = this->NameSymbols.size();
+    this->LongName = this->CanonName->getName();
+    this->LongName += " (a.k.a ";
+    for (auto & Sym : this->NameSymbols) {
+      if (Sym != this->CanonName) {
+        this->LongName += Sym->getName();
+        if (i + 1 < Length) {
+          this->LongName += ", ";
         }
       }
       i += 1;
     }
-    this->long_name += ')';
+    this->LongName += ')';
   }
 }
 
-Function::CodeBlockSet Function::makeExitBlocks(const Module& M,
+Function::CodeBlockSet Function::findExitBlocks(const Module& M,
                                                 const CodeBlockSet& Blocks) {
   /*
    * Exit blocks are blocks whose outgoing edges are
    * returns or sysrets;
    * calls or syscalls, and the target is not in the function
    */
-  auto cfg = M.getIR()->getCFG();
-  CodeBlockSet exit_blocks;
-  for (auto& block : Blocks) {
-    for (auto succ_pair : cfgSuccessors(cfg, block)) {
-      Node* succ;
-      EdgeLabel edge_label;
-      std::tie(succ, edge_label) = succ_pair;
-      if (edge_label) {
-        auto& [conditional, direct, type] = *edge_label;
-        if ((type == EdgeType::Return) || (type == EdgeType::Sysret)) {
-          exit_blocks.insert(block);
+  auto Cfg = M.getIR()->getCFG();
+  CodeBlockSet ExitBlocks;
+  for (auto& Block : Blocks) {
+    for (auto Succ_pair : cfgSuccessors(Cfg, Block)) {
+      Node* Succ;
+      EdgeLabel Edge_label;
+      std::tie(Succ, Edge_label) = Succ_pair;
+      if (Edge_label) {
+        auto& [Conditional, Direct, Type] = *Edge_label;
+        if ((Type == EdgeType::Return) || (Type == EdgeType::Sysret)) {
+          ExitBlocks.insert(Block);
           break;
         }
-        if ((type == EdgeType::Call) || (type == EdgeType::Syscall)) {
-          auto dest = dyn_cast<CodeBlock>(succ);
-          if ((dest != nullptr) && (Blocks.find(dest) != Blocks.end())) {
+        if ((Type == EdgeType::Call) || (Type == EdgeType::Syscall)) {
+          auto Dest = dyn_cast<CodeBlock>(Succ);
+          if ((Dest != nullptr) && (Blocks.find(Dest) != Blocks.end())) {
           } else {
-            exit_blocks.insert(block);
+            ExitBlocks.insert(Block);
             break;
           }
         }
       }
     }
   }
-  return exit_blocks;
+  return ExitBlocks;
 }
 
 std::vector<Function> Function::build_functions(const Context& C,
-                                                const Module& mod) {
+                                                const Module& Mod) {
   // build table of symbols by referent.UUID
   // Load AuxData re: functions
-  auto* function_entries = mod.getAuxData<schema::FunctionEntries>();
+  auto* EntriesByFn = Mod.getAuxData<schema::FunctionEntries>();
 
-  auto* all_fn_blocks = mod.getAuxData<schema::FunctionBlocks>();
+  auto* BlocksByFn = Mod.getAuxData<schema::FunctionBlocks>();
 
-  auto* all_names = mod.getAuxData<schema::FunctionNames>();
+  auto* FnNames = Mod.getAuxData<schema::FunctionNames>();
 
-  std::vector<Function> functions;
+  std::vector<Function> Fns;
 
-  for (const auto& fn_entry : *function_entries) {
+  for (const auto& FnEntry : *EntriesByFn) {
 
-    auto& [fn_id, fn_entry_ids] = fn_entry;
-    UUID fnid2 = fn_id;
-    CodeBlockSet entry_blocks;
-    SymbolSet name_symbols;
+    auto& [FnId, FnEntryIds] = FnEntry;
+    CodeBlockSet EntryBlocks;
+    SymbolSet NameSymbols;
 
-    for (const auto& entry_id : fn_entry_ids) {
-      auto block = dyn_cast<CodeBlock>(Node::getByUUID(C, entry_id));
-      if (block != nullptr) {
-        entry_blocks.insert(block);
-        for (const auto& s : mod.findSymbols(*block)) {
-          name_symbols.insert(&s);
+    for (const auto& Id : FnEntryIds) {
+      auto Block = dyn_cast<CodeBlock>(Node::getByUUID(C, Id));
+      if (Block != nullptr) {
+        EntryBlocks.insert(Block);
+        for (const auto& s : Mod.findSymbols(*Block)) {
+          NameSymbols.insert(&s);
         }
       }
     }
 
-    CodeBlockSet fn_blocks;
-    auto fn_blocks_uuid_iter = all_fn_blocks->find(fn_id);
-    if (fn_blocks_uuid_iter != all_fn_blocks->end()) {
-      auto fn_blocks_by_uuid = (*fn_blocks_uuid_iter).second;
-      for (const auto& b : fn_blocks_by_uuid) {
-        auto block = dyn_cast<CodeBlock>(Node::getByUUID(C, b));
-        if (block) {
-          fn_blocks.insert(block);
+    CodeBlockSet FnBlocks;
+    auto FnBlockIdIter = BlocksByFn->find(FnId);
+    if (FnBlockIdIter != BlocksByFn->end()) {
+      auto FnBlockIds = (*FnBlockIdIter).second;
+      for (const auto& Id : FnBlockIds) {
+        auto Block = dyn_cast<CodeBlock>(Node::getByUUID(C, Id));
+        if (Block) {
+          FnBlocks.insert(Block);
         }
       }
     }
 
-    const Symbol* canon_name = nullptr;
-    auto fn_name_iter = all_names->find(fn_id);
-    if (fn_name_iter != all_names->end()) {
-      auto id = (*fn_name_iter).second;
-      canon_name = dyn_cast<Symbol>(Symbol::getByUUID(C, id));
+    const Symbol* CanonName = nullptr;
+    auto FnNameIter = FnNames->find(FnId);
+    if (FnNameIter != FnNames->end()) {
+      auto Id = (*FnNameIter).second;
+      CanonName = dyn_cast<Symbol>(Symbol::getByUUID(C, Id));
     }
 
-    CodeBlockSet exit_blocks;
-    if (!std::empty(fn_blocks)) {
-      exit_blocks = makeExitBlocks(mod, fn_blocks);
+    CodeBlockSet ExitBlocks;
+    if (!std::empty(FnBlocks)) {
+      ExitBlocks = findExitBlocks(Mod, FnBlocks);
     }
 
-    Function fun{fnid2,        entry_blocks, fn_blocks,
-                 name_symbols, exit_blocks,  canon_name};
-    functions.push_back(fun);
+    Function Fn{FnId,
+                EntryBlocks, ExitBlocks, FnBlocks,
+                NameSymbols,   CanonName};
+    Fns.push_back(Fn);
   }
 
-  return functions;
+  return Fns;
 }
 
 } // namespace gtirb
