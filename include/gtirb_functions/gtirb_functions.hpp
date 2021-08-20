@@ -1,4 +1,5 @@
-//===- gtirb_functions.hpp -----------------------------------------------*- C++ -*-===//
+//===- gtirb_functions.hpp -----------------------------------------------*- C++
+//-*-===//
 //
 //  Copyright (C) 2021 GrammaTech, Inc.
 //
@@ -29,8 +30,8 @@ namespace gtirb {
 /// \class Function serves as a thin wrapper around the function-related
 /// information in AuxData (FunctionEntries, FunctionBlocks, FunctionNames).
 
-/// A \class Function is read-only; any modifications to the underlying \class Module
-/// may invalidate it.
+/// A \class Function is read-only; any modifications to the underlying \class
+/// Module may invalidate it.
 
 ///
 
@@ -56,12 +57,11 @@ class Function {
                                      const CodeBlockSet& Blocks);
 
   // Constructor;
-  Function( const UUID& Uuid_,
-            const CodeBlockSet& Entries, const CodeBlockSet& Exits,
-            const CodeBlockSet& Blocks,
-            const SymbolSet& Names, const Symbol* canonName = nullptr)
-      : Uuid(Uuid_), EntryBlocks(Entries), ExitBlocks(Exits),
-        AllBlocks(Blocks), NameSymbols(Names), CanonName(canonName) {
+  Function(const UUID& Uuid_, const CodeBlockSet& Entries,
+           const CodeBlockSet& Exits, const CodeBlockSet& Blocks,
+           const SymbolSet& Names, const Symbol* canonName = nullptr)
+      : Uuid(Uuid_), EntryBlocks(Entries), ExitBlocks(Exits), AllBlocks(Blocks),
+        NameSymbols(Names), CanonName(canonName) {
     set_name();
   };
 
@@ -102,7 +102,7 @@ public:
   code_block_iterator all_blocks_begin() { return AllBlocks.begin(); }
   code_block_iterator all_blocks_end() { return AllBlocks.end(); }
 
-  code_block_range all_blocks() { return { AllBlocks.begin(), AllBlocks.end()}; }
+  code_block_range all_blocks() { return {AllBlocks.begin(), AllBlocks.end()}; }
 
   using symbol_iterator = SymbolSet::const_iterator;
   using symbol_range = ::boost::iterator_range<symbol_iterator>;

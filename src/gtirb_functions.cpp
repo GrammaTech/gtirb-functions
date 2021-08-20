@@ -17,7 +17,7 @@ void Function::set_name(void) {
     size_t Length = this->NameSymbols.size();
     this->LongName = this->CanonName->getName();
     this->LongName += " (a.k.a ";
-    for (auto & Sym : this->NameSymbols) {
+    for (auto& Sym : this->NameSymbols) {
       if (Sym != this->CanonName) {
         this->LongName += Sym->getName();
         if (i + 1 < Length) {
@@ -116,9 +116,8 @@ std::vector<Function> Function::build_functions(const Context& C,
       ExitBlocks = findExitBlocks(Mod, FnBlocks);
     }
 
-    Function Fn{FnId,
-                EntryBlocks, ExitBlocks, FnBlocks,
-                NameSymbols,   CanonName};
+    Function Fn{FnId,     EntryBlocks, ExitBlocks,
+                FnBlocks, NameSymbols, CanonName};
     Fns.push_back(Fn);
   }
 
