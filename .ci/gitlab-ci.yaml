@@ -7,7 +7,7 @@ stages:
   - test
   - build
   - test_package
-#  - deploy
+  - deploy
 
 default:
   image: $DOCKER_REGISTRY/rewriting/gtirb-functions
