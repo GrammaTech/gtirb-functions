@@ -2,6 +2,10 @@ FROM ubuntu:18.04
 
 # DEBIAN_FRONTEND=noninteractive: needed to sidestep interactivity in install
 # of tzdata, which asks for time zone info
+
+RUN wget -O - https://download.grammatech.com/gtirb/files/apt-repo/conf/apt.gpg.key | apt-key add -
+RUN echo "deb https://download.grammatech.com/gtirb/files/apt-repo bionic gtirb"| sudo tee -a /etc/apt/sources.list
+RUN add-apt-repository ppa:mhier/libboost-latest
 RUN apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive \
     apt-get install -y build-essential curl clang-format gcovr git \
