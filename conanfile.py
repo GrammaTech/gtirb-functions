@@ -42,7 +42,7 @@ class Properties:
     name = "gtirb-functions"
     version = get_version()
     rel_url = "rewriting/gtirb-functions"
-    exports_sources = "cpp/*"
+    exports_sources = "*"
 
     @property
     def description(self):
