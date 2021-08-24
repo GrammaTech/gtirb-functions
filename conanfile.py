@@ -87,11 +87,12 @@ class GtirbFunctionsConan(Properties, ConanFile):
     settings = ("os", "compiler", "build_type", "arch")
     license = "MIT"
 
-    boost_version =  "1.69.0"
-    gtirb_version="dev"
+    boost_version = "1.69.0"
+    gtirb_version = "dev"
     requires = (
-        "gtirb/%s@rewriting+gtirb/%s" % (gtirb_version, "master" if gtirb_version == "dev" else "stable"),
-        "boost/%s" % (boost_version)
+        "gtirb/%s@rewriting+gtirb/%s"
+        % (gtirb_version, "master" if gtirb_version == "dev" else "stable"),
+        "boost/%s" % (boost_version),
     )
 
     def configure(self):

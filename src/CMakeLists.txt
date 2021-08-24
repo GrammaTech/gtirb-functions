@@ -13,10 +13,8 @@ set_target_properties(
   gtirb-functions PROPERTIES VERSION ${GTIRB_FUNCTIONS_VERSION}
                              SOVERSION ${GTIRB_FUNCTION_MAJOR_VERSION})
 
-
-target_compile_options(
-  gtirb-functions PUBLIC -Wno-shadow -Wno-deprecated-copy -Wno-unused-local-typedefs
-)
+target_compile_options(gtirb-functions PUBLIC -Wno-shadow -Wno-deprecated-copy
+                                              -Wno-unused-local-typedefs)
 
 target_include_directories(
   gtirb-functions PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>)

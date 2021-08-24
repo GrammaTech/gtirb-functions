@@ -61,7 +61,7 @@ Function::CodeBlockSet Function::findExitBlocks(const Module& M,
       EdgeLabel Edge_label;
       std::tie(Succ, Edge_label) = Succ_pair;
       if (Edge_label) {
-        auto & Type = std::get<2>(*Edge_label);
+        auto& Type = std::get<2>(*Edge_label);
         if ((Type == EdgeType::Return) || (Type == EdgeType::Sysret)) {
           ExitBlocks.insert(Block);
           break;
