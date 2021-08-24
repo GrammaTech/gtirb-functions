@@ -209,9 +209,19 @@ coverage:
     paths:
       - test-install
   script:
+    - *cpack-update-apt-sources-template
+    - apt-get install -y libgtirb-functions-dev
+    - cp src/main.cpp ./ && g++ main.cpp -o test-install -lgtirb-functions -lstdc++
+    - ./test-install GrammaTech
 
+.test-lib: &test-lib
+  stage: cpack-test-shared-lib
+  script:
+    - *cpack-update-apt-sources-template
     - apt-get install -y libgtirb-functions-dev
     - ./test-install GrammaTech
+
+
 
 .test-lib-dbg: &test-lib-dbg
   stage: cpack-test
