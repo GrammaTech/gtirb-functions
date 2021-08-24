@@ -12,6 +12,7 @@ __pycache__/
 # Other files and directories
 core.*
 vgcore.*
+googletest*
 
 # Common Lisp files
 *.fasl

@@ -87,6 +87,13 @@ class GtirbFunctionsConan(Properties, ConanFile):
     settings = ("os", "compiler", "build_type", "arch")
     license = "MIT"
 
+    boost_version =  "1.69.0"
+    gtirb_version="dev"
+    requires = (
+        "gtirb/%s@rewriting+gtirb/%s" % (gtirb_version, "master" if gtirb_version == "dev" else "stable"),
+        "boost/%s" % (boost_version)
+    )
+
     def configure(self):
         if (
             self.settings.compiler == "gcc"
@@ -101,6 +108,7 @@ class GtirbFunctionsConan(Properties, ConanFile):
         cmake = CMake(self)
         defs = {
             "CMAKE_VERBOSE_MAKEFILE:BOOL": "ON",
+            "ENABLE_CONAN:BOOL": "ON",
         }
         cmake.configure(source_folder="./", defs=defs)
         cmake.build()

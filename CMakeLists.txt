@@ -17,7 +17,7 @@ set(GTIRB_FUNCTIONS_PATCH_VERSION ${CMAKE_MATCH_1})
 
 cmake_policy(SET CMP0048 NEW)
 project(
-  gtirb_functions
+  gtirb-functions
   VERSION
     "${GITRB_FUNCTIONS_MAJOR_VERSION}.${GTIRB_FUNCTIONS_MINOR_VERSION}.${GTIRB_FUNCTIONS_PATCH_VERSION}"
 )
@@ -27,7 +27,7 @@ option(ENABLE_CONAN "Use Conan to inject dependencies" OFF)
 option(ENABLE_CODE_COVERAGE
        "Build with instrumentation for collecting code coverage" OFF)
 
-option(GTIRB_FUNCTION_ENABLE_TESTS "run tests" ON)
+option(GTIRB_FUNCTIONS_ENABLE_TESTS "run tests" ON)
 
 if(ENABLE_CODE_COVERAGE)
   if(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU OR ${CMAKE_CXX_COMPILER_ID} STREQUAL
@@ -49,18 +49,18 @@ endif()
 # ---------------------------------------------------------------------------
 
 # Wrapper for BUILD_SHARED_LIBS which defaults to 'ON'
-option(GTIRB_FUNCTION_BUILD_SHARED_LIBS "Build shared libraries." ON)
-if(GTIRB_FUNCTION_BUILD_SHARED_LIBS)
+option(GTIRB_FUNCTIONS_BUILD_SHARED_LIBS "Build shared libraries." ON)
+if(GTIRB_FUNCTIONS_BUILD_SHARED_LIBS)
   set(BUILD_SHARED_LIBS ON)
 else()
   set(BUILD_SHARED_LIBS OFF)
 endif()
 
-option(GTIRB_FUNCTION_ENABLE_TESTS "Enable build and running unit tests." ON)
+option(GTIRB_FUNCTIONS_ENABLE_TESTS "Enable build and running unit tests." ON)
 
 # Determine whether or not to strip debug symbols and set the build-id. This is
 # only really needed when we are building ubuntu *-dbg packages
-option(GTIRB_FUNCTION_STRIP_DEBUG_SYMBOLS
+option(GTIRB_FUNCTIONS_STRIP_DEBUG_SYMBOLS
        "Whether or not to strip debug symbols and set the build-id." OFF)
 
 # ---------------------------------------------------------------------------
@@ -126,7 +126,7 @@ endif()
 # ---------------------------------------------------------------------------
 # Google Test Application
 # ---------------------------------------------------------------------------
-if(GTIRB_FUNCTION_ENABLE_TESTS)
+if(GTIRB_FUNCTIONS_ENABLE_TESTS)
   configure_file(CMakeLists.googletest googletest-download/CMakeLists.txt)
 
   execute_process(
@@ -170,7 +170,7 @@ function(install_linux_debug_info TARGET COMPONENT_NAME)
      AND NOT CYGWIN
      AND ("${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo"
           OR "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-     AND ${GTIRB_FUNCTION_STRIP_DEBUG_SYMBOLS})
+     AND ${GTIRB_FUNCTIONS_STRIP_DEBUG_SYMBOLS})
     string(
       RANDOM
       LENGTH 32
@@ -197,7 +197,7 @@ add_subdirectory(src)
 # ---------------------------------------------------------------------------
 # Export config for use by other CMake projects
 # ---------------------------------------------------------------------------
-export(TARGETS gtirb_functions
+export(TARGETS gtirb-functions
        FILE "${CMAKE_CURRENT_BINARY_DIR}/gtirbFunctionsTargets.cmake")
 
 # Build tree config
@@ -209,14 +209,14 @@ configure_file("${CMAKE_CURRENT_LIST_DIR}/gtirbFunctionsConfig.cmake.in"
                "${CMAKE_CURRENT_BINARY_DIR}/export/gtirbFunctionsConfig.cmake")
 install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/export/gtirbFunctionsConfig.cmake
-  DESTINATION lib/gtirb_functions
+  DESTINATION lib/gtirb-functions
   COMPONENT cmake_config)
 install(
-  EXPORT gtirb_functionsTargets
-  DESTINATION lib/gtirb_functions
+  EXPORT gtirb-functionsTargets
+  DESTINATION lib/gtirb-functions
   COMPONENT cmake_target)
 
-export(PACKAGE gtirb_functions)
+export(PACKAGE gtirb-functions)
 
 # ---------------------------------------------------------------------------
 # Debian/RPM package generation
@@ -231,11 +231,13 @@ set(CPACK_PACKAGE_VERSION_PATCH ${GTIRB_FUNCTIONS_PATCH_VERSION})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Package description")
 set(CPACK_PACKAGE_VENDOR "GrammaTech Inc.")
 set(CPACK_PACKAGE_CONTACT adavis@grammatech.com)
-# set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_CURRENT_SOURCE_DIR}/README.md)
-# set(CPACK_PACKAGE_RESOURCE_FILE_LICENSE
-# ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt)
+set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_CURRENT_SOURCE_DIR}/README.md)
+set(CPACK_PACKAGE_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt)
 
 set(CPACK_DEBIAN_PACKAGE_SECTION devel)
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "gtirb (>=1.10.0)")
+
+set(CPACK_RPM_PACKAGE_REQUIRES "gtirb (>=1.10.0)")
 
 set(CPACK_GTIRB_FUNCTIONS_VERSION "${GTIRB_FUNCTIONS_VERSION}")
 
