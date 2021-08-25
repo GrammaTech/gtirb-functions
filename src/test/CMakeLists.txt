@@ -4,8 +4,7 @@ enable_testing()
 include_directories(${GTEST_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-add_compile_options( -Wno-shadow -Wno-deprecated-copy
-                                              -Wno-unused-local-typedefs)
+add_compile_options(-Wno-shadow -Wno-deprecated-copy -Wno-unused-local-typedefs)
 
 add_executable(gtfunctions_test gtirb-functions.test.cpp main.test.cpp)
 
