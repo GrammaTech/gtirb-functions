@@ -39,7 +39,7 @@ install(
   COMPONENT headers)
 
 # Tests
-if(GTIRB_FUNCTION_ENABLE_TESTS)
+if(GTIRB_FUNCTIONS_ENABLE_TESTS)
   enable_testing()
   add_subdirectory(test)
 endif()
