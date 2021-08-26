@@ -179,12 +179,12 @@ coverage:
     - mkdir build
     - cd build
     - conan install ..
-    - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DGTIRB_FUNCTION_STRIP_DEBUG_SYMBOLS=ON -DENABLE_CONAN=ON ..
+    - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DGTIRB_FUNCTIONS_STRIP_DEBUG_SYMBOLS=ON -DENABLE_CONAN=ON ..
     - make
     - ctest
-    - cpack -G DEB -D CPACK_GTIRB_FUNCTION_PACKAGE=lib
-    - cpack -G DEB -D CPACK_GTIRB_FUNCTION_PACKAGE=lib-dbg
-    - cpack -G DEB -D CPACK_GTIRB_FUNCTION_PACKAGE=dev
+    - cpack -G DEB -D CPACK_GTIRB_FUNCTIONS_PACKAGE=lib
+    - cpack -G DEB -D CPACK_GTIRB_FUNCTIONS_PACKAGE=lib-dbg
+    - cpack -G DEB -D CPACK_GTIRB_FUNCTIONS_PACKAGE=dev
 
 
 .setup-repo: &setup-repo
@@ -212,8 +212,8 @@ coverage:
   script:
     - *cpack-update-apt-sources-template
     - apt-get install -y libgtirb-functions-dev
-    - cp src/main.cpp ./ && g++ main.cpp -o test-install -lgtirb-functions -lstdc++
-    - ./test-install GrammaTech
+    # - cp src/main.cpp ./ && g++ main.cpp -o test-install -lgtirb-functions -lstdc++
+    # - ./test-install GrammaTech
 
 .test-lib: &test-lib
   stage: cpack-test-shared-lib
