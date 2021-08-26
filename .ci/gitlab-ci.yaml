@@ -19,7 +19,6 @@ stages:
   - build
   - cpack-make-installers
   - cpack-test
-  - cpack-test-shared-lib
   - cpack-deploy
   - test_package
   - deploy
@@ -199,7 +198,7 @@ coverage:
 
 .cpack-update-apt-sources-template: &cpack-update-apt-sources-template |
     wget -O - https://download.grammatech.com/gtirb/files/apt-repo/conf/apt.gpg.key | apt-key add -
-    echo "deb https://download.grammatech.com/gtirb/files/apt-repo bionic latest"|  tee -a /etc/apt/sources.list
+    echo "deb https://download.grammatech.com/gtirb/files/apt-repo bionic stable"|  tee -a /etc/apt/sources.list
     echo -e "\ndeb [trusted=yes] file:$(pwd)/installers/ ./\n" >> /etc/apt/sources.list
     tail /etc/apt/sources.list
     apt-cache search libgtirb
@@ -218,7 +217,7 @@ coverage:
     - apt-get install -y libgtirb-functions-dev
 
 .test-lib: &test-lib
-  stage: cpack-test-shared-lib
+  stage: cpack-test
   script:
     - *cpack-update-apt-sources-template
     - apt-get install -y libgtirb-functions-dev
