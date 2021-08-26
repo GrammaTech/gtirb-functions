@@ -28,7 +28,8 @@ elseif("${CPACK_GTIRB_FUNCTIONS_PACKAGE}" STREQUAL "dev")
   set(CPACK_PACKAGE_FILE_NAME "libgtirb-functions-dev")
   set(CPACK_COMPONENTS_ALL headers cmake_config cmake_target)
   set(CPACK_DEBIAN_PACKAGE_DEPENDS
-      "libgtirb-dev (>=${LIBGTIRB_MIN_VERSION}), libgtirb-functions (=${CPACK_GTIRB_FUNCTIONS_VERSION})")
+      "libgtirb-dev (>=${LIBGTIRB_MIN_VERSION}), libgtirb-functions (=${CPACK_GTIRB_FUNCTIONS_VERSION})"
+  )
   message(CPACK_DEBIAN_PACKAGE_DEPENDS=${CPACK_DEBIAN_PACKAGE_DEPENDS})
   set(CPACK_RPM_PACKAGE_REQUIRES
       "libgtirb-functions = ${CPACK_GTIRB_FUNCTIONS_VERSION}")
@@ -41,8 +42,7 @@ elseif("${CPACK_GTIRB_FUNCTIONS_PACKAGE}" STREQUAL "driver")
       "libgtirb (>=${LIBGTIRB_MIN_VERSION}), libgtirb-functions (=${CPACK_GTIRB_FUNCTIONS_VERSION})"
   )
   set(CPACK_RPM_PACKAGE_REQUIRES
-      "libgtirb-functions = ${CPACK_GTIRB_FUNCTIONS_VERSION}"
-  )
+      "libgtirb-functions = ${CPACK_GTIRB_FUNCTIONS_VERSION}")
 
   # do not use a sepate package for debug info in case of RPM
   set(CPACK_RPM_DEBUGINFO_PACKAGE ON)

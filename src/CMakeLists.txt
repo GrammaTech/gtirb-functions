@@ -9,7 +9,6 @@ set(GTIRB_FUNCTION_HEADERS
 add_library(gtirb-functions ${CMAKE_CURRENT_SOURCE_DIR}/gtirb_functions.cpp
                             ${GTIRB_FUNCTION_HEADERS})
 
-
 set_target_properties(
   gtirb-functions PROPERTIES VERSION ${GTIRB_FUNCTIONS_VERSION}
                              SOVERSION ${GTIRB_FUNCTIONS_MAJOR_VERSION})
