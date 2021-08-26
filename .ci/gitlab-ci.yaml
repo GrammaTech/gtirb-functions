@@ -201,6 +201,8 @@ coverage:
     wget -O - https://download.grammatech.com/gtirb/files/apt-repo/conf/apt.gpg.key | apt-key add -
     echo "deb https://download.grammatech.com/gtirb/files/apt-repo bionic latest"|  tee -a /etc/apt/sources.list
     echo -e "\ndeb [trusted=yes] file:$(pwd)/installers/ ./\n" >> /etc/apt/sources.list
+    tail /etc/apt/sources.list
+    apt-cache search libgtirb
     apt-get update -y
 
 .cpack-check-lib-build-id: &cpack-check-lib-build-id |
