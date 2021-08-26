@@ -7,8 +7,8 @@ variables:
   UBUNTU18_BASE_IMAGE: ubuntu:18.04
   CENTOS_BASE_IMAGE: centos:8
   # Projects may want to use images in their own namespace
-  UBUNTU20_CPP_IMAGE: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20
-  UBUNTU18_CPP_IMAGE: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu18
+  UBUNTU20_CPP_IMAGE: $DOCKER_REGISTRY/rewriting/gtirb-functions/ubuntu20
+  UBUNTU18_CPP_IMAGE: $DOCKER_REGISTRY/rewriting/gtirb-functions/ubuntu18
   # CENTOS_CPP_IMAGE: $DOCKER_REGISTRY/$CI_PROJECT_NAMESPACE/hello/centos8
 
 
