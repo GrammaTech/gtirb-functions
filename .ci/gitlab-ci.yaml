@@ -183,7 +183,7 @@ coverage:
     - make
     - ctest
     - cpack -G DEB -D CPACK_GTIRB_FUNCTIONS_PACKAGE=lib
-    # - cpack -G DEB -D CPACK_GTIRB_FUNCTIONS_PACKAGE=lib-dbg
+    - cpack -G DEB -D CPACK_GTIRB_FUNCTIONS_PACKAGE=lib-dbg
     - cpack -G DEB -D CPACK_GTIRB_FUNCTIONS_PACKAGE=dev
 
 
@@ -198,8 +198,10 @@ coverage:
     - cd installers/ && dpkg-scanpackages . /dev/null > Packages
 
 .cpack-update-apt-sources-template: &cpack-update-apt-sources-template |
-
     echo -e "\ndeb [trusted=yes] file:$(pwd)/installers/ ./\n" >> /etc/apt/sources.list
+    curl -L https://git.grammatech.com/rewriting/gtirb/-/jobs/artifacts/${GTIRB_BRANCH}/download?job=${JOB_NAME} --output "gtirb.zip"
+    unzip gtirb.zip
+    dpkg -i libgtirb.deb
     apt-get update -y
 
 .cpack-check-lib-build-id: &cpack-check-lib-build-id |
@@ -213,15 +215,13 @@ coverage:
   script:
     - *cpack-update-apt-sources-template
     - apt-get install -y libgtirb-functions-dev
-    # - cp src/main.cpp ./ && g++ main.cpp -o test-install -lgtirb-functions -lstdc++
-    # - ./test-install GrammaTech
 
 .test-lib: &test-lib
   stage: cpack-test-shared-lib
   script:
     - *cpack-update-apt-sources-template
     - apt-get install -y libgtirb-functions-dev
-    - ./test-install GrammaTech
+    # - ./test-install GrammaTech
 
 
 

@@ -9,7 +9,7 @@ if("${CPACK_GTIRB_FUNCTIONS_PACKAGE}" STREQUAL "lib")
   set(CPACK_PACKAGE_FILE_NAME "libgtirb-functions")
   set(CPACK_COMPONENTS_ALL library)
   set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgtirb (>=${LIBGTIRB_MIN_VERSION})")
-  # set(CPACK_RPM_PACKAGE_REQUIRES "libgtirb.so")
+  set(CPACK_RPM_PACKAGE_REQUIRES "libgtirb.so.1")
 
   # do not use a sepate package for debug info in case of RPM
   set(CPACK_RPM_DEBUGINFO_PACKAGE ON)
@@ -19,7 +19,7 @@ elseif("${CPACK_GTIRB_FUNCTIONS_PACKAGE}" STREQUAL "lib-dbg")
   # this debug info pacakge applies only to Debian generator
   set(CPACK_PACKAGE_NAME "libgtirb-functions-dbg")
   set(CPACK_PACKAGE_FILE_NAME "libgtirb-functions-dbg")
-  set(CPACK_COMPONENTS_ALL GTIRB_FUNCTIONS-debug-file)
+  set(CPACK_COMPONENTS_ALL gtirb-functions-debug-file)
   set(CPACK_DEBIAN_PACKAGE_DEPENDS
       "libgtirb-functions (=${CPACK_GTIRB_FUNCTIONS_VERSION})")
 
@@ -34,24 +34,4 @@ elseif("${CPACK_GTIRB_FUNCTIONS_PACKAGE}" STREQUAL "dev")
   set(CPACK_RPM_PACKAGE_REQUIRES
       "libgtirb-functions = ${CPACK_GTIRB_FUNCTIONS_VERSION}")
 
-elseif("${CPACK_GTIRB_FUNCTIONS_PACKAGE}" STREQUAL "driver")
-  set(CPACK_PACKAGE_NAME "gtirb-functions-driver")
-  set(CPACK_PACKAGE_FILE_NAME "gtirb-functions-driver")
-  set(CPACK_COMPONENTS_ALL driver)
-  set(CPACK_DEBIAN_PACKAGE_DEPENDS
-      "libgtirb (>=${LIBGTIRB_MIN_VERSION}), libgtirb-functions (=${CPACK_GTIRB_FUNCTIONS_VERSION})"
-  )
-  set(CPACK_RPM_PACKAGE_REQUIRES
-      "libgtirb-functions = ${CPACK_GTIRB_FUNCTIONS_VERSION}")
-
-  # do not use a sepate package for debug info in case of RPM
-  set(CPACK_RPM_DEBUGINFO_PACKAGE ON)
-  set(CPACK_RPM_DEBUGINFO_FILE_NAME "gtirb-functions-driver-dbg.rpm")
-elseif("${CPACK_GTIRB_FUNCTIONS_PACKAGE}" STREQUAL "driver-dbg")
-  # this debug info pacakge applies only to Debian generator
-  set(CPACK_PACKAGE_NAME "gtirb-functions-driver-dbg")
-  set(CPACK_PACKAGE_FILE_NAME "gtirb-functions-driver-dbg")
-  set(CPACK_COMPONENTS_ALL gtirb-functions-driver-debug-file)
-  set(CPACK_DEBIAN_PACKAGE_DEPENDS
-      "gtirb-functions-driver (=${CPACK_GTIRB_FUNCTIONS_VERSION})")
 endif()

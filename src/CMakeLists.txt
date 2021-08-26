@@ -22,7 +22,7 @@ target_include_directories(gtirb-functions SYSTEM PUBLIC /usr/include)
 # target_include_directories( gtirb_functions PUBLIC
 # $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>)
 
-install_linux_debug_info(gtirb-functions gtirb_functions-debug-file)
+install_linux_debug_info(gtirb-functions gtirb-functions-debug-file)
 
 install(
   TARGETS gtirb-functions
