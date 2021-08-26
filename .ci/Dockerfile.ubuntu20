@@ -27,3 +27,4 @@ RUN pip3 install --upgrade pip && \
 
 # Use EDT for timestamps (necessary?)
 RUN ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
+RUN apt-get install -y wget 
