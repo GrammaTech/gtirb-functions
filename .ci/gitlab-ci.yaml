@@ -198,7 +198,7 @@ coverage:
 
 .cpack-update-apt-sources-template: &cpack-update-apt-sources-template |
     wget -O - https://download.grammatech.com/gtirb/files/apt-repo/conf/apt.gpg.key | apt-key add -
-    echo "deb https://download.grammatech.com/gtirb/files/apt-repo bionic stable"|  tee -a /etc/apt/sources.list
+    echo "deb https://download.grammatech.com/gtirb/files/apt-repo bionic latest"|  tee -a /etc/apt/sources.list
     echo -e "\ndeb [trusted=yes] file:$(pwd)/installers/ ./\n" >> /etc/apt/sources.list
     tail /etc/apt/sources.list
     apt-cache search libgtirb
@@ -259,7 +259,7 @@ test-dev-ubuntu18:
   <<: *test-dev
 
 test-lib-ubuntu18:
-  needs: [setup-repo-ubuntu18, test-dev-ubuntu18]
+  needs: [setup-repo-ubuntu18]
   image: ${UBUNTU18_BASE_IMAGE}
   <<: *test-lib
 
@@ -289,7 +289,7 @@ test-dev-ubuntu20:
 
 test-lib-ubuntu20:
   image: ${UBUNTU20_BASE_IMAGE}
-  needs: [setup-repo-ubuntu20, test-dev-ubuntu20]
+  needs: [setup-repo-ubuntu20]
   <<: *test-lib
 
 # test-lib-dbg-ubuntu20:
