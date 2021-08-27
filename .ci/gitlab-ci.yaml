@@ -201,7 +201,6 @@ coverage:
     wget -O - https://download.grammatech.com/gtirb/files/apt-repo/conf/apt.gpg.key | apt-key add -
     echo "deb https://download.grammatech.com/gtirb/files/apt-repo $DISTRO_NAME stable"|  tee -a /etc/apt/sources.list
     echo -e "\ndeb [trusted=yes] file:$(pwd)/installers/ ./\n" >> /etc/apt/sources.list
-    tail /etc/apt/sources.list
     apt-get update
     apt-cache search libgtirb
 
@@ -274,6 +273,8 @@ test-lib-ubuntu18:
   <<: *test-lib
 
 test-lib-dbg-ubuntu18:
+  variables:
+    DISTRO_NAME: bionic
   needs: [setup-repo-ubuntu18]
   image: ${UBUNTU18_CPP_IMAGE}
   <<: *test-lib-dbg
@@ -309,6 +310,8 @@ test-lib-ubuntu20:
   <<: *test-lib
 
 test-lib-dbg-ubuntu20:
+  variables:
+    DISTRO_NAME: focal
   image: ${UBUNTU20_CPP_IMAGE}
   needs: [setup-repo-ubuntu20]
   <<: *test-lib-dbg

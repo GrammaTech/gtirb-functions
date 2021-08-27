@@ -20,6 +20,11 @@ RUN curl -SL https://cmake.org/files/v$(echo $CMAKE_VERSION | sed -r 's/\.[0-9]+
 RUN  python3 -m pip install --upgrade pip && \
      python3 -m pip install pre-commit conan
 
+# install boost
+RUN add-apt-repository ppa:mhier/libboost-latest
+RUN apt-get update -y && apt-get install -y libboost-dev
+
+
 # Use EDT for timestamps (necessary?)
 RUN ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
 RUN apt-get install -y wget
