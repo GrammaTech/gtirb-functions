@@ -22,7 +22,7 @@ RUN  python3 -m pip install --upgrade pip && \
 
 # install boost
 RUN add-apt-repository ppa:mhier/libboost-latest
-RUN apt-get update -y 
+RUN apt-get update -y
 
 
 # Use EDT for timestamps (necessary?)

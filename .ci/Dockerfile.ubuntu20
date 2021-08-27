@@ -19,7 +19,7 @@ RUN curl -SL https://cmake.org/files/v$(echo $CMAKE_VERSION | sed -r 's/\.[0-9]+
 
 # install boost
 RUN add-apt-repository ppa:mhier/libboost-latest
-RUN apt-get update -y 
+RUN apt-get update -y
 
 
 RUN pip3 install --upgrade pip && \
