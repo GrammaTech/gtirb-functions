@@ -17,11 +17,11 @@ stages:
   - check-format
   - test
   - build
+  - test_package
   - cpack-make-installers
   - cpack-test
   - cpack-test-shared-lib
   - cpack-deploy
-  - test_package
   - deploy
 
 default:
