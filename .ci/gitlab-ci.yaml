@@ -68,7 +68,7 @@ build:
   stage: build
   artifacts:
     paths:
-      - dist/gtirb-functions-*-py3-none-any.whl
+      - dist/*.whl
     expire_in: 1 weeks
   script:
     - python3 setup.py sdist bdist_wheel
@@ -79,6 +79,7 @@ test_package:
   stage: test_package
   before_script: []
   script:
+    - ls dist
     - for f in dist/*.whl; do python3 -m pip install $f; done
 
 export_external:
