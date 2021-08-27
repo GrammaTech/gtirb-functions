@@ -270,7 +270,7 @@ test-lib-ubuntu18:
   variables:
     DISTRO_NAME: bionic
   needs: [setup-repo-ubuntu18, test-dev-ubuntu18]
-  image: ${UBUNTU18_BASE_IMAGE}
+  image: ${UBUNTU18_CPP_IMAGE}
   <<: *test-lib
 
 test-lib-dbg-ubuntu18:
@@ -280,7 +280,7 @@ test-lib-dbg-ubuntu18:
 
 deploy-ubuntu18:
   needs: [setup-repo-ubuntu18, test-dev-ubuntu18, test-lib-ubuntu18]
-  image: ${UBUNTU18_BASE_IMAGE}
+  image: ${UBUNTU18_CPP_IMAGE}
   <<: *debian-deploy
 
 build-cpack-ubuntu20:
@@ -302,7 +302,7 @@ test-dev-ubuntu20:
 test-lib-ubuntu20:
   variables:
     DISTRO_NAME: focal
-  image: ${UBUNTU20_BASE_IMAGE}
+  image: ${UBUNTU20_CPP_IMAGE}
   needs: [setup-repo-ubuntu20, test-dev-ubuntu20]
   before_script:
     {}
@@ -314,6 +314,6 @@ test-lib-ubuntu20:
 #   <<: *test-lib-dbg
 
 deploy-ubuntu20:
-  image: ${UBUNTU20_BASE_IMAGE}
+  image: ${UBUNTU20_CPP_IMAGE}
   needs: [setup-repo-ubuntu20, test-dev-ubuntu20, test-lib-ubuntu20]
   <<: *debian-deploy
