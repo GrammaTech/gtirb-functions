@@ -68,7 +68,7 @@ build:
   stage: build
   artifacts:
     paths:
-      - dist/*.whl
+      - dist/gtirb_functions-*-py3-none-any.whl
     expire_in: 1 weeks
   script:
     - python3 setup.py sdist bdist_wheel
