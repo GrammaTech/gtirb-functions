@@ -79,7 +79,7 @@ public:
 
   /// \section Iterators
 
-  /// \brief Const iterator over code blocks, in an arbitrary order  
+  /// \brief Const iterator over code blocks, in an arbitrary order
   using code_block_iterator = CodeBlockSet::const_iterator;
 
   /// \brief Const range of code blocks
@@ -103,7 +103,6 @@ public:
     return {ExitBlocks.begin(), ExitBlocks.end()};
   }
 
-
   /// \brief Return an iterator to the first code block in the function
   code_block_iterator all_blocks_begin() { return AllBlocks.begin(); }
   /// \brief Return an iterator to the element after the last code block
@@ -111,17 +110,17 @@ public:
   /// \brief Return a range of the code blocks in the function
   code_block_range all_blocks() { return {AllBlocks.begin(), AllBlocks.end()}; }
 
-  /// \brief Const iterator over symbols, in arbitrary order 
+  /// \brief Const iterator over symbols, in arbitrary order
   using symbol_iterator = SymbolSet::const_iterator;
   /// \brief Const range over symbols
   using symbol_range = ::boost::iterator_range<symbol_iterator>;
-
 
   /// A name symbol is any symbol that refers to an entry block of the function
 
   /// \brief Return an iterator to the first symbol for the function name
   symbol_iterator name_symbols_begin() { return NameSymbols.begin(); }
-  /// \brief Return an iterator to the element after the last symbol for the function name
+  /// \brief Return an iterator to the element after the last symbol for the
+  /// function name
   symbol_iterator name_symbols_end() { return NameSymbols.end(); }
   /// \brief Return a range over the name symbols of the function
   symbol_range name_symbols() {
@@ -137,9 +136,7 @@ public:
 
   /// \brief Returns the UUID of the function as a
   const UUID& getUUID() { return Uuid; }
-
 };
-
 
 }; // namespace gtirb
 #endif
