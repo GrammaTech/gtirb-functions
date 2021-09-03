@@ -9,7 +9,7 @@ variables:
   # Projects may want to use images in their own namespace
   UBUNTU20_CPP_IMAGE: $DOCKER_REGISTRY/rewriting/gtirb-functions/ubuntu20
   UBUNTU18_CPP_IMAGE: $DOCKER_REGISTRY/rewriting/gtirb-functions/ubuntu18
-  CENTOS_CPP_IMAGE: $DOCKER_REGISTRY/rewriting/gtirb-functions/centos8
+  CENTOS8_CPP_IMAGE: $DOCKER_REGISTRY/rewriting/gtirb-functions/centos8
 
 
 
