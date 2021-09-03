@@ -9,7 +9,7 @@ variables:
   # Projects may want to use images in their own namespace
   UBUNTU20_CPP_IMAGE: $DOCKER_REGISTRY/rewriting/gtirb-functions/ubuntu20
   UBUNTU18_CPP_IMAGE: $DOCKER_REGISTRY/rewriting/gtirb-functions/ubuntu18
-  # CENTOS_CPP_IMAGE: $DOCKER_REGISTRY/$CI_PROJECT_NAMESPACE/hello/centos8
+  CENTOS_CPP_IMAGE: $DOCKER_REGISTRY/rewriting/gtirb-functions/centos8
 
 
 
@@ -349,11 +349,11 @@ deploy-ubuntu20:
 
 
 build-cpack-rpm:
-  image: ${CENTOS8_IMAGE}
+  image: ${CENTOS8_CPP_IMAGE}
   <<: *build-cpack
 
 setup-repo-rpm:
-  image: ${CENTOS8_IMAGE}
+  image: ${CENTOS8_CPP_IMAGE}
   needs: [build-cpack-rpm]
   stage: cpack-make-installers
   artifacts:
@@ -366,7 +366,7 @@ test-dev-rpm:
   variables:
     DISTRO_NAME: focal
   stage: cpack-test
-  image: ${CENTOS8_IMAGE}
+  image: ${CENTOS8_CPP_IMAGE}
   needs: [setup-repo-rpm]
   script:
     - *rpm-test-package-template
@@ -374,7 +374,7 @@ test-dev-rpm:
 test-lib-rpm:
   variables:
     DISTRO_NAME: focal
-  image: ${CENTOS8_IMAGE}
+  image: ${CENTOS8_CPP_IMAGE}
   stage: cpack-test-shared-lib
   needs: [setup-repo-rpm, test-dev-rpm]
   script:
@@ -384,14 +384,14 @@ test-lib-dbg-rpm:
   stage: cpack-test
   variables:
     DISTRO_NAME: focal
-  image: ${CENTOS8_IMAGE}
+  image: ${CENTOS8_CPP_IMAGE}
   needs: [setup-repo-rpm]
   script:
     - *rpm-test-package-template
 
 deploy-rpm:
   stage: cpack-deploy
-  image: ${CENTOS8_IMAGE}
+  image: ${CENTOS8_CPP_IMAGE}
   needs: [setup-repo-rpm, test-dev-rpm, test-lib-rpm]
   script:
     - cp installers/*.rpm ./
