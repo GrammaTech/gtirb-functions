@@ -198,7 +198,7 @@ coverage:
     - *conan-template
     - mkdir build
     - cd build
-    - conan install ..
+    - conan install .. --build=missing
     - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DGTIRB_FUNCTIONS_STRIP_DEBUG_SYMBOLS=ON -DENABLE_CONAN=ON ..
     - make
     - ctest
