@@ -79,52 +79,67 @@ public:
 
   /// \section Iterators
 
+  /// \brief Const iterator over code blocks, in an arbitrary order  
   using code_block_iterator = CodeBlockSet::const_iterator;
 
+  /// \brief Const range of code blocks
   using code_block_range = ::boost::iterator_range<code_block_iterator>;
 
-  /// Iterate through the entry points of the function, in an arbitrary order
+  /// \brief Return an iterator to the first entry block
   code_block_iterator entry_blocks_begin() { return EntryBlocks.begin(); }
+  /// \brief Return an iterator to the element after the last entry block
   code_block_iterator entry_blocks_end() { return EntryBlocks.end(); }
+  /// \brief Return a range of the entry blocks
   code_block_range entry_blocks() {
     return {EntryBlocks.begin(), EntryBlocks.end()};
   }
 
-  /// Iterate through the exit blocks of the function, in an arbitrary order
+  /// \brief Return an iterator to the first exit block
   code_block_iterator exit_blocks_begin() { return ExitBlocks.begin(); }
+  /// \brief Return an iterator to the element after the last exit block
   code_block_iterator exit_blocks_end() { return ExitBlocks.end(); }
-
+  /// \brief Return a range of the exit blocks
   code_block_range exit_blocks() {
     return {ExitBlocks.begin(), ExitBlocks.end()};
   }
 
-  /// Iterate through the blocks of the function, in an arbitrary order
-  code_block_iterator all_blocks_begin() { return AllBlocks.begin(); }
-  code_block_iterator all_blocks_end() { return AllBlocks.end(); }
 
+  /// \brief Return an iterator to the first code block in the function
+  code_block_iterator all_blocks_begin() { return AllBlocks.begin(); }
+  /// \brief Return an iterator to the element after the last code block
+  code_block_iterator all_blocks_end() { return AllBlocks.end(); }
+  /// \brief Return a range of the code blocks in the function
   code_block_range all_blocks() { return {AllBlocks.begin(), AllBlocks.end()}; }
 
+  /// \brief Const iterator over symbols, in arbitrary order 
   using symbol_iterator = SymbolSet::const_iterator;
+  /// \brief Const range over symbols
   using symbol_range = ::boost::iterator_range<symbol_iterator>;
 
-  /// Iterate through all names for the function, in an arbitrary order
-  symbol_iterator name_symbols_begin() { return NameSymbols.begin(); }
-  symbol_iterator name_symbols_end() { return NameSymbols.end(); }
 
+  /// A name symbol is any symbol that refers to an entry block of the function
+
+  /// \brief Return an iterator to the first symbol for the function name
+  symbol_iterator name_symbols_begin() { return NameSymbols.begin(); }
+  /// \brief Return an iterator to the element after the last symbol for the function name
+  symbol_iterator name_symbols_end() { return NameSymbols.end(); }
+  /// \brief Return a range over the name symbols of the function
   symbol_range name_symbols() {
     return {NameSymbols.begin(), NameSymbols.end()};
   }
 
-  /// Get the UUID of the function
-  const UUID& getUUID() { return Uuid; }
-
-  /// Get the name of the function, as stored in AuxData
+  /// \brief Returns the name of the function as recorded in AuxData
   const Symbol* getName() { return CanonName; }
 
-  /// Get a view of the string representation of the names
-  /// associated with the function.
+  /// \brief Returns a pretty concatenation of the names of the functions,
+  /// as a string view
   const std::string& getLongName() { return LongName; }
+
+  /// \brief Returns the UUID of the function as a
+  const UUID& getUUID() { return Uuid; }
+
 };
+
 
 }; // namespace gtirb
 #endif
