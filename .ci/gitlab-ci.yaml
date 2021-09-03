@@ -231,7 +231,7 @@ coverage:
 .rpm-test-package-template: &rpm-test-package-template |
     pushd build
     dnf --nogpgcheck localinstall *.rpm
-    popd 
+    popd
     rm -rf build/
 
 .test-dev: &test-dev
@@ -355,15 +355,17 @@ build-cpack-rpm:
 setup-repo-rpm:
   image: ${CENTOS8_IMAGE}
   needs: [build-cpack-rpm]
+  stage: cpack-make-installers
   artifacts:
     paths:
         - '*.rpm'
-  script: 
+  script:
    - mv installers/*.rpm ./
 
 test-dev-rpm:
   variables:
     DISTRO_NAME: focal
+  stage: cpack-test
   image: ${CENTOS8_IMAGE}
   needs: [setup-repo-rpm]
   script:
@@ -373,21 +375,23 @@ test-lib-rpm:
   variables:
     DISTRO_NAME: focal
   image: ${CENTOS8_IMAGE}
+  stage: cpack-test-shared-lib
   needs: [setup-repo-rpm, test-dev-rpm]
-  before_script:
-    {}
-  script: 
+  script:
     - *rpm-test-package-template
-    - 
+
 test-lib-dbg-rpm:
+  stage: cpack-test
   variables:
     DISTRO_NAME: focal
   image: ${CENTOS8_IMAGE}
   needs: [setup-repo-rpm]
+  script:
     - *rpm-test-package-template
 
 deploy-rpm:
+  stage: cpack-deploy
   image: ${CENTOS8_IMAGE}
   needs: [setup-repo-rpm, test-dev-rpm, test-lib-rpm]
-  script: 
+  script:
     - cp installers/*.rpm ./
