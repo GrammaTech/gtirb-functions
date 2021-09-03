@@ -188,7 +188,7 @@ coverage:
     - cpack -G DEB -D CPACK_GTIRB_FUNCTIONS_PACKAGE=dev
 
 
-.build-cpack-rpm-template: &build-cpack-rpm
+.build-cpack-rpm-template: &build-cpack-rpm-template
   stage: build
   needs: [check-format]
   artifacts:
@@ -350,7 +350,7 @@ deploy-ubuntu20:
 
 build-cpack-rpm:
   image: ${CENTOS8_CPP_IMAGE}
-  <<: *build-cpack
+  <<: *build-cpack-rpm-template
 
 setup-repo-rpm:
   image: ${CENTOS8_CPP_IMAGE}
