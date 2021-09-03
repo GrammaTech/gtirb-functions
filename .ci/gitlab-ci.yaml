@@ -358,9 +358,10 @@ setup-repo-rpm:
   stage: cpack-make-installers
   artifacts:
     paths:
-        - '*.rpm'
+        - installers/
   script:
-   - mv installers/*.rpm ./
+   - mkdir installers
+   - mv build/*.rpm ./installers/
 
 test-dev-rpm:
   variables:
