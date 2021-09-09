@@ -134,7 +134,6 @@ export_internal:
   - conan profile new default --detect
   - conan profile update settings.compiler.libcxx=libstdc++11 default
   - conan remote add gitlab ${CI_API_V4_URL}/packages/conan
-  - conan remote list
   - export CONAN_PASSWORD="$CI_JOB_TOKEN"
   - conan user ci_user -r gitlab -p
 
@@ -386,7 +385,7 @@ test-lib-rpm:
   needs: [setup-repo-rpm, test-dev-rpm]
   script:
     - pushd build/
-    - dnf --nogpgcheck localinstall capstone-devel-*.rmp libgtirb.rpm libgtirb-dev.rpm libgtirb-functions-dev.rpm
+    - dnf --nogpgcheck localinstall capstone-devel-*.rpm libgtirb.rpm libgtirb-dev.rpm libgtirb-functions-dev.rpm
     - popd
     - rm -rf build/
 
