@@ -46,7 +46,7 @@ void Function::set_name(void) {
   }
 }
 
-Function::CodeBlockSet Function::findExitBlocks(const Module& M,
+Function::CodeBlockSet Function::findExitBlocks(Module& M,
                                                 const CodeBlockSet& Blocks) {
   /*
    * Exit blocks are blocks whose outgoing edges are
@@ -61,15 +61,14 @@ Function::CodeBlockSet Function::findExitBlocks(const Module& M,
       EdgeLabel Edge_label;
       std::tie(Succ, Edge_label) = Succ_pair;
       if (Edge_label) {
-        auto& Type = std::get<2>(*Edge_label);
+        auto& Type = std::get<EdgeType>(*Edge_label);
         if ((Type == EdgeType::Return) || (Type == EdgeType::Sysret)) {
           ExitBlocks.insert(Block);
           break;
         }
         if ((Type == EdgeType::Call) || (Type == EdgeType::Syscall)) {
           auto Dest = dyn_cast<CodeBlock>(Succ);
-          if ((Dest != nullptr) && (Blocks.find(Dest) != Blocks.end())) {
-          } else {
+          if ((Dest == nullptr) || (Blocks.find(Dest) == Blocks.end())) {
             ExitBlocks.insert(Block);
             break;
           }
@@ -80,8 +79,7 @@ Function::CodeBlockSet Function::findExitBlocks(const Module& M,
   return ExitBlocks;
 }
 
-std::vector<Function> Function::build_functions(const Context& C,
-                                                const Module& Mod) {
+std::vector<Function> Function::build_functions(Context& C, Module& Mod) {
   // build table of symbols by referent.UUID
   // Load AuxData re: functions
   auto* EntriesByFn = Mod.getAuxData<schema::FunctionEntries>();
@@ -99,10 +97,10 @@ std::vector<Function> Function::build_functions(const Context& C,
     SymbolSet NameSymbols;
 
     for (const auto& Id : FnEntryIds) {
-      auto Block = dyn_cast<CodeBlock>(Node::getByUUID(C, Id));
-      if (Block != nullptr) {
-        EntryBlocks.insert(Block);
-        for (const auto& s : Mod.findSymbols(*Block)) {
+      Node* FnBlockNode = Node::getByUUID(C, Id);
+      if (CodeBlock* FnBlock = dyn_cast_or_null<CodeBlock>(FnBlockNode)) {
+        EntryBlocks.insert(FnBlock);
+        for (auto& s : Mod.findSymbols(*FnBlock)) {
           NameSymbols.insert(&s);
         }
       }
@@ -113,24 +111,20 @@ std::vector<Function> Function::build_functions(const Context& C,
     if (FnBlockIdIter != BlocksByFn->end()) {
       auto FnBlockIds = (*FnBlockIdIter).second;
       for (const auto& Id : FnBlockIds) {
-        auto Block = dyn_cast<CodeBlock>(Node::getByUUID(C, Id));
-        if (Block) {
+        if (auto Block = dyn_cast_or_null<CodeBlock>(Node::getByUUID(C, Id))) {
           FnBlocks.insert(Block);
         }
       }
     }
 
-    const Symbol* CanonName = nullptr;
+    Symbol* CanonName = nullptr;
     auto FnNameIter = FnNames->find(FnId);
     if (FnNameIter != FnNames->end()) {
       auto Id = (*FnNameIter).second;
       CanonName = dyn_cast<Symbol>(Symbol::getByUUID(C, Id));
     }
 
-    CodeBlockSet ExitBlocks;
-    if (!std::empty(FnBlocks)) {
-      ExitBlocks = findExitBlocks(Mod, FnBlocks);
-    }
+    CodeBlockSet ExitBlocks = findExitBlocks(Mod, FnBlocks);
 
     Function Fn{FnId,     EntryBlocks, ExitBlocks,
                 FnBlocks, NameSymbols, CanonName};

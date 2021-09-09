@@ -53,13 +53,12 @@ class Function {
 
   // helper functions
   void set_name(void);
-  static CodeBlockSet findExitBlocks(const Module& M,
-                                     const CodeBlockSet& Blocks);
+  static CodeBlockSet findExitBlocks(Module& M, const CodeBlockSet& Blocks);
 
   // Constructor;
   Function(const UUID& Uuid_, const CodeBlockSet& Entries,
            const CodeBlockSet& Exits, const CodeBlockSet& Blocks,
-           const SymbolSet& Names, const Symbol* canonName = nullptr)
+           const SymbolSet& Names, Symbol* canonName = nullptr)
       : Uuid(Uuid_), EntryBlocks(Entries), ExitBlocks(Exits), AllBlocks(Blocks),
         NameSymbols(Names), CanonName(canonName) {
     set_name();
@@ -74,8 +73,7 @@ public:
   /// \param Mod The \class Module
 
   /// \return an vector containing the Functions in this module, possibly empty
-  static std::vector<Function> build_functions(const Context& C,
-                                               const Module& Mod);
+  static std::vector<Function> build_functions(Context& C, Module& Mod);
 
   /// \section Iterators
 
