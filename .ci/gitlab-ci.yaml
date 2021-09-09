@@ -229,7 +229,7 @@ coverage:
 
 
 .rpm-test-package-template: &rpm-test-package-template |
-    ls .
+    ls
     pushd build/
     dnf --nogpgcheck localinstall *.rpm
     popd
@@ -359,6 +359,7 @@ setup-repo-rpm:
   stage: cpack-make-installers
   artifacts:
     paths:
+        - build/
         - installers/
   script:
    - mkdir installers
