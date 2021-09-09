@@ -18,9 +18,11 @@ target_compile_options(gtirb-functions PUBLIC -Wno-shadow -Wno-deprecated-copy
 
 target_include_directories(
   gtirb-functions PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>)
-target_include_directories(gtirb-functions SYSTEM PUBLIC /usr/include)
-# target_include_directories( gtirb_functions PUBLIC
-# $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>)
+
+target_link_libraries(gtirb-functions PUBLIC gtirb)
+
+target_include_directories(
+  gtirb-functions PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>)
 
 install_linux_debug_info(gtirb-functions gtirb-functions-debug-file)
 
