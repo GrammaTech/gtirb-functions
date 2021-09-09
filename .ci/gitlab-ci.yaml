@@ -365,7 +365,7 @@ setup-repo-rpm:
    - mkdir installers
    - cp build/*.rpm ./installers/
 
-test-dev-rpm:
+test-rpm:
   variables:
     DISTRO_NAME: focal
   stage: cpack-test
@@ -373,38 +373,14 @@ test-dev-rpm:
   needs: [setup-repo-rpm]
   script:
     - pushd build/
-    - dnf --nogpgcheck localinstall capstone-devel-*.rpm libgtirb.rpm libgtirb-devel.rpm libgtirb-functions-dev.rpm
-    - popd
-    - rm -rf build/
-
-test-lib-rpm:
-  variables:
-    DISTRO_NAME: focal
-  image: ${CENTOS8_CPP_IMAGE}
-  stage: cpack-test-shared-lib
-  needs: [setup-repo-rpm, test-dev-rpm]
-  script:
-    - pushd build/
-    - dnf --nogpgcheck localinstall capstone-devel-*.rpm libgtirb.rpm libgtirb-devel.rpm libgtirb-functions-dev.rpm
-    - popd
-    - rm -rf build/
-
-test-lib-dbg-rpm:
-  stage: cpack-test
-  variables:
-    DISTRO_NAME: focal
-  image: ${CENTOS8_CPP_IMAGE}
-  needs: [setup-repo-rpm]
-  script:
-    - pushd build/
-    - dnf --nogpgcheck localinstall capstone-devel-*.rpm libgtirb.rpm libgtirb-devel.rpm libgtirb-functions-dev.rpm
+    - dnf --nogpgcheck libgtirb-functions.rpm libgtirb-functions-dev.rpm
     - popd
     - rm -rf build/
 
 deploy-rpm:
   stage: cpack-deploy
   image: ${CENTOS8_CPP_IMAGE}
-  needs: [setup-repo-rpm, test-dev-rpm, test-lib-rpm]
+  needs: [setup-repo-rpm, test-rpm]
   script:
     - cp installers/*.rpm ./
   rules:
