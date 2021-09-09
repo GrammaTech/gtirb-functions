@@ -229,7 +229,8 @@ coverage:
 
 
 .rpm-test-package-template: &rpm-test-package-template |
-    pushd build
+    ls .
+    pushd build/
     dnf --nogpgcheck localinstall *.rpm
     popd
     rm -rf build/
@@ -361,7 +362,7 @@ setup-repo-rpm:
         - installers/
   script:
    - mkdir installers
-   - mv build/*.rpm ./installers/
+   - cp build/*.rpm ./installers/
 
 test-dev-rpm:
   variables:
@@ -396,3 +397,6 @@ deploy-rpm:
   needs: [setup-repo-rpm, test-dev-rpm, test-lib-rpm]
   script:
     - cp installers/*.rpm ./
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
