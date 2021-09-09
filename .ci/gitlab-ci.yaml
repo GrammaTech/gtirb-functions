@@ -198,6 +198,10 @@ coverage:
     - *conan-template
     - mkdir build
     - cd build
+    - curl -L https://git.grammatech.com/rewriting/extra-packages/-/jobs/artifacts/master/download?job=capstone-linux-rpm --output "capstone.zip"
+    - curl -L https://git.grammatech.com/rewriting/gtirb/-/jobs/artifacts/master/download?job=package-centos8 --output "gtirb.zip"
+    - for pkg in gtirb capstone; do unzip $pkg.zip; done
+    - dnf --nogpgcheck localinstall -y capstone-devel-*.rpm libgtirb.rpm libgtirb-devel.rpm
     - conan install .. --build=missing
     - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DGTIRB_FUNCTIONS_STRIP_DEBUG_SYMBOLS=ON -DENABLE_CONAN=ON ..
     - make
@@ -229,7 +233,6 @@ coverage:
 
 
 .rpm-test-package-template: &rpm-test-package-template |
-    ls
     pushd build/
     dnf --nogpgcheck localinstall *.rpm
     popd
@@ -254,8 +257,6 @@ coverage:
     - *cpack-update-apt-sources-template
     - apt-get install -y libgtirb-functions-dev
     # - ./test-install GrammaTech
-
-
 
 .test-lib-dbg: &test-lib-dbg
   stage: cpack-test
@@ -372,7 +373,10 @@ test-dev-rpm:
   image: ${CENTOS8_CPP_IMAGE}
   needs: [setup-repo-rpm]
   script:
-    - *rpm-test-package-template
+    - pushd build/
+    - dnf --nogpgcheck localinstall capstone-devel-*.rmp libgtirb.rpm libgtirb-dev.rpm libgtirb-functions-dev.rpm
+    - popd
+    - rm -rf build/
 
 test-lib-rpm:
   variables:
@@ -381,7 +385,10 @@ test-lib-rpm:
   stage: cpack-test-shared-lib
   needs: [setup-repo-rpm, test-dev-rpm]
   script:
-    - *rpm-test-package-template
+    - pushd build/
+    - dnf --nogpgcheck localinstall capstone-devel-*.rmp libgtirb.rpm libgtirb-dev.rpm libgtirb-functions-dev.rpm
+    - popd
+    - rm -rf build/
 
 test-lib-dbg-rpm:
   stage: cpack-test
@@ -390,7 +397,10 @@ test-lib-dbg-rpm:
   image: ${CENTOS8_CPP_IMAGE}
   needs: [setup-repo-rpm]
   script:
-    - *rpm-test-package-template
+    - pushd build/
+    - dnf --nogpgcheck localinstall capstone-devel-*.rmp libgtirb.rpm libgtirb-dev.rpm libgtirb-functions-dev.rpm
+    - popd
+    - rm -rf build/
 
 deploy-rpm:
   stage: cpack-deploy
