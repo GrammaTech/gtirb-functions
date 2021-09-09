@@ -373,7 +373,7 @@ test-dev-rpm:
   needs: [setup-repo-rpm]
   script:
     - pushd build/
-    - dnf --nogpgcheck localinstall capstone-devel-*.rpm libgtirb.rpm libgtirb-dev.rpm libgtirb-functions-dev.rpm
+    - dnf --nogpgcheck localinstall capstone-devel-*.rpm libgtirb.rpm libgtirb-devel.rpm libgtirb-functions-dev.rpm
     - popd
     - rm -rf build/
 
@@ -385,7 +385,7 @@ test-lib-rpm:
   needs: [setup-repo-rpm, test-dev-rpm]
   script:
     - pushd build/
-    - dnf --nogpgcheck localinstall capstone-devel-*.rpm libgtirb.rpm libgtirb-dev.rpm libgtirb-functions-dev.rpm
+    - dnf --nogpgcheck localinstall capstone-devel-*.rpm libgtirb.rpm libgtirb-devel.rpm libgtirb-functions-dev.rpm
     - popd
     - rm -rf build/
 
@@ -397,7 +397,7 @@ test-lib-dbg-rpm:
   needs: [setup-repo-rpm]
   script:
     - pushd build/
-    - dnf --nogpgcheck localinstall capstone-devel-*.rpm libgtirb.rpm libgtirb-dev.rpm libgtirb-functions-dev.rpm
+    - dnf --nogpgcheck localinstall capstone-devel-*.rpm libgtirb.rpm libgtirb-devel.rpm libgtirb-functions-dev.rpm
     - popd
     - rm -rf build/
 
