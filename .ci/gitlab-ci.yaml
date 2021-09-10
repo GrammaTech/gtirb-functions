@@ -12,7 +12,11 @@ variables:
 
 stages:
   - check-format
+<<<<<<< HEAD
   - test_python
+=======
+  - pytest
+>>>>>>> renamed 'test' stage to 'pytest' bc it only runs python tests
   - build
   - test_python_package
   - cpack-make-installers
@@ -54,8 +58,8 @@ check-format:
       ================================================================================
       EOF
 
-test_python:
-  stage: test_python
+pytest:
+  stage: pytest
   script:
     - pip install -r requirements-dev.txt
     - mypy gtirb_functions
