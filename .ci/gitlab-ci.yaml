@@ -175,11 +175,9 @@ coverage:
     paths:
       - build/
   script:
-    - *conan-template
     - mkdir build
     - cd build
-    - conan install ..
-    - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DGTIRB_FUNCTIONS_STRIP_DEBUG_SYMBOLS=ON -DENABLE_CONAN=ON ..
+    - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DGTIRB_FUNCTIONS_STRIP_DEBUG_SYMBOLS=ON ..
     - make
     - ctest
     - cpack -G DEB -D CPACK_GTIRB_FUNCTIONS_PACKAGE=lib
@@ -194,15 +192,13 @@ coverage:
     paths:
       - build/
   script:
-    - *conan-template
     - mkdir build
     - cd build
     - curl -L https://git.grammatech.com/rewriting/extra-packages/-/jobs/artifacts/master/download?job=capstone-linux-rpm --output "capstone.zip"
     - curl -L https://git.grammatech.com/rewriting/gtirb/-/jobs/artifacts/master/download?job=package-centos8 --output "gtirb.zip"
     - for pkg in gtirb capstone; do unzip $pkg.zip; done
     - dnf --nogpgcheck localinstall -y capstone-devel-*.rpm libgtirb.rpm libgtirb-devel.rpm
-    - conan install .. --build=missing
-    - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DGTIRB_FUNCTIONS_STRIP_DEBUG_SYMBOLS=ON -DENABLE_CONAN=ON ..
+    - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DGTIRB_FUNCTIONS_STRIP_DEBUG_SYMBOLS=ON ..
     - make
     - ctest
     - cpack -G RPM -D CPACK_GTIRB_FUNCTIONS_PACKAGE=lib
@@ -246,6 +242,7 @@ coverage:
   script:
     - *cpack-update-apt-sources-template
     - apt-get install -y libgtirb-functions-dev
+    - '[ -f /usr/include/gtirb_functions.hpp ]'
 
 .test-lib: &test-lib
   stage: cpack-test-shared-lib
@@ -253,7 +250,8 @@ coverage:
     - echo ""
   script:
     - *cpack-update-apt-sources-template
-    - apt-get install -y libgtirb-functions-dev
+    - apt-get install -y libgtirb-functions
+    - '[ -f /usr/lib/libgtirb_functions.so]'
     # - ./test-install GrammaTech
 
 .test-lib-dbg: &test-lib-dbg
