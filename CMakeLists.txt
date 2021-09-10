@@ -1,7 +1,7 @@
 # * Need 3.10 to support CXX_STANDARD=17
 # * Need 3.13 to support "add_link_options(--coverage)"
 
-cmake_minimum_required(VERSION 3.13.0)
+cmake_minimum_required(VERSION 3.10.0)
 
 # Read version.txt and setup project
 file(READ "${CMAKE_CURRENT_SOURCE_DIR}/version.txt" VERSION_FILE)
@@ -16,12 +16,17 @@ string(REGEX MATCH "VERSION_PATCH ([0-9]*)" _ ${VERSION_FILE})
 set(GTIRB_FUNCTIONS_PATCH_VERSION ${CMAKE_MATCH_1})
 
 cmake_policy(SET CMP0048 NEW)
-
 project(
   gtirb-functions
   VERSION
     "${GTIRB_FUNCTIONS_MAJOR_VERSION}.${GTIRB_FUNCTIONS_MINOR_VERSION}.${GTIRB_FUNCTIONS_PATCH_VERSION}"
 )
+
+if(NOT DEFINED CMAKE_PROJECT_VERSION)
+  set(CMAKE_PROJECT_VERSION ${PROJECT_VERSION})
+  set(VERSION ${PROJECT_VERSION})
+endif()
+
 set(GTIRB_FUNCTIONS_VERSION ${CMAKE_PROJECT_VERSION})
 
 option(ENABLE_CONAN "Use Conan to inject dependencies" OFF)
