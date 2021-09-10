@@ -126,9 +126,12 @@ protected:
     f2 = make_function("f2", {4}, {4, 5});
 
     // write out aux data
-    M->addAuxData<schema::FunctionBlocks>(std::move(fn_blocks));
-    M->addAuxData<schema::FunctionEntries>(std::move(fn_entries));
-    M->addAuxData<schema::FunctionNames>(std::move(fn_names));
+    auto tmp_blocks = fn_blocks;
+    M->addAuxData<schema::FunctionBlocks>(std::move(tmp_blocks));
+    auto tmp_entries = fn_entries;
+    M->addAuxData<schema::FunctionEntries>(std::move(tmp_entries));
+    auto tmp_names = fn_names;
+    M->addAuxData<schema::FunctionNames>(std::move(tmp_names));
 
     functions = Function::build_functions(C, *M);
   };
@@ -151,10 +154,12 @@ TEST_F(TestData, TEST_NAMES) {
 }
 
 TEST_F(TestData, TEST_UUIDS) {
+  std::set<UUID> ids;
   for (auto& fun : functions) {
-    const UUID& id = fun.getUUID();
-    EXPECT_TRUE((id == f1) || (id == f2));
+    ids.insert(fun.getUUID());
   }
+  std::set<UUID> expected{f1, f2};
+  EXPECT_EQ(ids, expected);
 }
 
 TEST_F(TestData, TEST_ENTRIES) {
@@ -183,11 +188,11 @@ TEST_F(TestData, TEST_EXITS) {
 
 TEST_F(TestData, TEST_BLOCKS) {
   for (auto& fun : functions) {
-    std::set<const CodeBlock*> fn_blocks;
+    std::set<UUID> fn_ids;
     for (auto& block : fun.all_blocks()) {
-      fn_blocks.insert(block);
+      fn_ids.insert(block->getUUID());
     }
-    auto expected_size = fun.getUUID() == f1 ? 3 : 2;
-    EXPECT_EQ(fn_blocks.size(), expected_size);
+    auto expected = fun.getUUID() == f1 ? fn_blocks[f1] : fn_blocks[f2];
+    EXPECT_EQ(fn_ids, expected);
   }
 }

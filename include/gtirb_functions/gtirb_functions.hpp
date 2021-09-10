@@ -30,11 +30,6 @@ namespace gtirb {
 /// \class Function serves as a thin wrapper around the function-related
 /// information in AuxData (FunctionEntries, FunctionBlocks, FunctionNames).
 
-/// A \class Function is read-only; any modifications to the underlying \class
-/// Module may invalidate it.
-
-///
-
 class Function {
 
   using CodeBlockSet = std::unordered_set<CodeBlock*>;

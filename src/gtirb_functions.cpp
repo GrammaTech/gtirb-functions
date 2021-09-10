@@ -57,9 +57,7 @@ Function::CodeBlockSet Function::findExitBlocks(Module& M,
   CodeBlockSet ExitBlocks;
   for (auto& Block : Blocks) {
     for (auto Succ_pair : cfgSuccessors(Cfg, Block)) {
-      Node* Succ;
-      EdgeLabel Edge_label;
-      std::tie(Succ, Edge_label) = Succ_pair;
+      auto [Succ, Edge_label] = Succ_pair;
       if (Edge_label) {
         auto& Type = std::get<EdgeType>(*Edge_label);
         if ((Type == EdgeType::Return) || (Type == EdgeType::Sysret)) {
