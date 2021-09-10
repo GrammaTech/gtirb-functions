@@ -17,6 +17,7 @@
 #include "gtirb_functions/gtirb_functions.hpp"
 #include <gtirb/Casting.hpp>
 #include <gtirb/IR.hpp>
+#include <gtirb/Symbol.hpp>
 
 namespace gtirb {
 
@@ -29,16 +30,20 @@ void Function::set_name(void) {
     this->LongName = (*(this->NameSymbols.begin()))->getName();
     return;
   default:
-    size_t i = 0;
-    size_t Length = this->NameSymbols.size();
     this->LongName = this->CanonName->getName();
     this->LongName += " (a.k.a ";
+    std::vector<Symbol*> otherNames;
     for (auto& Sym : this->NameSymbols) {
       if (Sym != this->CanonName) {
-        this->LongName += Sym->getName();
-        if (i + 1 < Length) {
-          this->LongName += ", ";
-        }
+        otherNames.push_back(Sym);
+      }
+    }
+    size_t i = 0;
+    size_t Length = this->NameSymbols.size();
+    for (auto& Sym : otherNames) {
+      this->LongName += Sym->getName();
+      if (i + 1 < Length) {
+        this->LongName += ", ";
       }
       i += 1;
     }
