@@ -241,6 +241,7 @@ coverage:
     - *cpack-update-apt-sources-template
     - apt-cache search libgtirb
     - apt-get install -y libgtirb-functions-dev
+    - ls /usr/include
     - '[ -f /usr/include/gtirb_functions.hpp ]'
 
 .test-lib: &test-lib
