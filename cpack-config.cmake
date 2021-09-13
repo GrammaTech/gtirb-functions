@@ -30,9 +30,9 @@ elseif("${CPACK_GTIRB_FUNCTIONS_PACKAGE}" STREQUAL "dev")
   set(CPACK_DEBIAN_PACKAGE_DEPENDS
       "libgtirb-dev-${CPACK_GTIRB_VERSION}, libgtirb-functions (=${CPACK_GTIRB_FUNCTIONS_VERSION})"
   )
-  message(CPACK_DEBIAN_PACKAGE_DEPENDS=${CPACK_DEBIAN_PACKAGE_DEPENDS})
+  set(CPACK_RPM_PACKAGE_NAME "libgtirb-functions-devel")
   set(CPACK_RPM_PACKAGE_REQUIRES
-      "libgtirb-dev = ${CPACK_GTIRB_VERSION}, libgtirb-functions = ${CPACK_GTIRB_FUNCTIONS_VERSION}"
+      "libgtirb-devel = ${CPACK_GTIRB_VERSION}, libgtirb-functions = ${CPACK_GTIRB_FUNCTIONS_VERSION}"
   )
 
 endif()
