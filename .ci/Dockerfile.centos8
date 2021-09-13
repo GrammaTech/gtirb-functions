@@ -33,3 +33,6 @@ RUN dnf install -y 'dnf-command(config-manager)'
 RUN dnf config-manager --set-enabled powertools
 RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 RUN dnf install -y boost169-devel protobuf-devel
+
+# put boost libraries where we expect them
+RUN mv /usr/include/boost169/boost /usr/include
