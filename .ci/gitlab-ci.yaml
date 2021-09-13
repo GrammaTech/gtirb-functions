@@ -371,7 +371,7 @@ test-rpm:
   needs: [setup-repo-rpm]
   script:
     - pushd build/
-    - dnf --nogpgcheck localinstall libgtirb-functions.rpm libgtirb-functions-dev.rpm
+    - dnf --nogpgcheck localinstall -y capstone-devel-*.rpm libgtirb.rpm libgtirb-devel.rpm libgtirb-functions.rpm libgtirb-functions-dev.rpm
     - popd
     - rm -rf build/
 
