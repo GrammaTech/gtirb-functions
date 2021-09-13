@@ -9,7 +9,7 @@ if("${CPACK_GTIRB_FUNCTIONS_PACKAGE}" STREQUAL "lib")
   set(CPACK_PACKAGE_FILE_NAME "libgtirb-functions")
   set(CPACK_COMPONENTS_ALL library)
   set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgtirb-${CPACK_GTIRB_VERSION}")
-  set(CPACK_RPM_PACKAGE_REQUIRES "libgtirb.so.${CPACK_GTIRB_VERSION}")
+  set(CPACK_RPM_PACKAGE_REQUIRES "libgtirb = ${CPACK_GTIRB_VERSION}")
 
   # do not use a sepate package for debug info in case of RPM
   set(CPACK_RPM_DEBUGINFO_PACKAGE ON)
