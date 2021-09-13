@@ -251,7 +251,7 @@ coverage:
     - *cpack-update-apt-sources-template
     - apt-cache search libgtirb
     - apt-get install -y libgtirb-functions
-    - '[ -f /usr/lib/libgtirb_functions.so ]'
+    - '[ -f /usr/lib/libgtirb-functions.so ]'
     # - ./test-install GrammaTech
 
 .test-lib-dbg: &test-lib-dbg
