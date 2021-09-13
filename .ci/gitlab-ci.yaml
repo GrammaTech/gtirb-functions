@@ -387,7 +387,7 @@ test-rpm-dev:
 deploy-rpm:
   stage: cpack-deploy
   image: ${CENTOS8_CPP_IMAGE}
-  needs: [setup-repo-rpm, test-rpm]
+  needs: [setup-repo-rpm, test-rpm-lib, test-rpm-dev]
   script:
     - cp installers/*.rpm ./
   rules:
