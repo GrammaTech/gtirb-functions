@@ -161,7 +161,7 @@ coverage:
     - mkdir build
     - cd build
     - conan install ..
-    - cmake -DENABLE_CODE_COVERAGE=ON -DGTIRB_FUNCTIONS_ENABLE_TESTS=ON -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DENABLE_CONAN=ON ..
+    - cmake -DENABLE_CODE_COVERAGE=ON -DGTIRB_FUNCTIONS_ENABLE_TESTS=ON -DENABLE_DEBUG=ON -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DENABLE_CONAN=ON ..
     - make
     - ctest
     - gcovr -e googletest-src -r ..

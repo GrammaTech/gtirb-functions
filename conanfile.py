@@ -110,6 +110,7 @@ class GtirbFunctionsConan(Properties, ConanFile):
         defs = {
             "CMAKE_VERBOSE_MAKEFILE:BOOL": "ON",
             "ENABLE_CONAN:BOOL": "ON",
+            "GTIRB_FUNCTIONS_ENABLE_TESTS": "ON",
         }
         cmake.configure(source_folder="./", defs=defs)
         cmake.build()
