@@ -199,7 +199,9 @@ function(install_linux_debug_info TARGET COMPONENT_NAME)
 endfunction()
 
 # Add src subdirectory which contains targets
-add_subdirectory(src)
+if(GTIRB_FUNCTIONS_ENABLE_TESTS)
+  add_subdirectory(src)
+endif()
 
 # ---------------------------------------------------------------------------
 # Export config for use by other CMake projects
