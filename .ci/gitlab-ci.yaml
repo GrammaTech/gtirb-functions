@@ -262,9 +262,8 @@ test-dev-ubuntu18:
   image: ${UBUNTU18_CPP_IMAGE}
   <<: *test-dev
 
-
 deploy-ubuntu18:
-  needs: [setup-repo-ubuntu18, test-dev-ubuntu18, test-lib-ubuntu18]
+  needs: [setup-repo-ubuntu18, test-dev-ubuntu18]
   image: ${UBUNTU18_CPP_IMAGE}
   <<: *debian-deploy
 
@@ -286,7 +285,7 @@ test-dev-ubuntu20:
 
 deploy-ubuntu20:
   image: ${UBUNTU20_CPP_IMAGE}
-  needs: [setup-repo-ubuntu20, test-dev-ubuntu20, test-lib-ubuntu20]
+  needs: [setup-repo-ubuntu20, test-dev-ubuntu20]
   <<: *debian-deploy
 
 build-cpack-rpm:
@@ -318,7 +317,7 @@ test-rpm-dev:
 deploy-rpm:
   stage: cpack-deploy
   image: ${CENTOS8_CPP_IMAGE}
-  needs: [setup-repo-rpm, test-rpm-lib, test-rpm-dev]
+  needs: [setup-repo-rpm, test-rpm-dev]
   script:
     - cp installers/*.rpm ./
   rules:
