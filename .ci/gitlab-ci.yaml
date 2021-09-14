@@ -179,8 +179,6 @@ coverage:
     - cd build
     - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DGTIRB_FUNCTIONS_STRIP_DEBUG_SYMBOLS=ON ..
     - make
-    - cpack -G DEB -D CPACK_GTIRB_FUNCTIONS_PACKAGE=lib
-    - cpack -G DEB -D CPACK_GTIRB_FUNCTIONS_PACKAGE=lib-dbg
     - cpack -G DEB -D CPACK_GTIRB_FUNCTIONS_PACKAGE=dev
 
 
@@ -199,8 +197,6 @@ coverage:
     - dnf --nogpgcheck localinstall -y capstone-devel-*.rpm libgtirb.rpm libgtirb-devel.rpm
     - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DGTIRB_FUNCTIONS_STRIP_DEBUG_SYMBOLS=ON ..
     - make
-    - cpack -G RPM -D CPACK_GTIRB_FUNCTIONS_PACKAGE=lib
-    - cpack -G RPM -D CPACK_GTIRB_FUNCTIONS_PACKAGE=lib-dbg
     - cpack -G RPM -D CPACK_GTIRB_FUNCTIONS_PACKAGE=dev
 
 .setup-repo: &setup-repo

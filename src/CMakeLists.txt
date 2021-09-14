@@ -6,35 +6,26 @@ set(GTIRB_FUNCTION_HEADERS
     "${CMAKE_SOURCE_DIR}/include/gtirb_functions/gtirb_functions.hpp"
     "${CMAKE_BINARY_DIR}/include/gtirb_functions/version.h")
 
-add_library(gtirb-functions ${CMAKE_CURRENT_SOURCE_DIR}/gtirb_functions.cpp
-                            ${GTIRB_FUNCTION_HEADERS})
+add_library(gtirb-functions INTERFACE)
 
-set_target_properties(
-  gtirb-functions PROPERTIES VERSION ${GTIRB_FUNCTIONS_VERSION}
-                             SOVERSION ${GTIRB_FUNCTIONS_MAJOR_VERSION})
-
-target_compile_options(gtirb-functions PUBLIC -Wno-shadow -Wno-deprecated-copy
-                                              -Wno-unused-local-typedefs)
+# set_target_properties( gtirb-functions PROPERTIES VERSION
+# ${GTIRB_FUNCTIONS_VERSION} SOVERSION ${GTIRB_FUNCTIONS_MAJOR_VERSION})
 
 target_include_directories(
-  gtirb-functions PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>)
+  gtirb-functions INTERFACE $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+                            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
-target_link_libraries(gtirb-functions PUBLIC gtirb)
-
-target_include_directories(
-  gtirb-functions PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>)
-
-install_linux_debug_info(gtirb-functions gtirb-functions-debug-file)
+target_compile_features(gtirb-functions INTERFACE cxx_std_17)
+target_link_libraries(gtirb-functions INTERFACE gtirb)
 
 install(
   TARGETS gtirb-functions
   EXPORT gtirb-functionsTargets
-  COMPONENT library
-  INCLUDES
   DESTINATION include
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)
+
 install(
   FILES ${GTIRB_FUNCTION_HEADERS}
   DESTINATION include/gtirb_functions
