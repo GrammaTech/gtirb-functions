@@ -213,13 +213,6 @@ coverage:
     echo -e "\ndeb [trusted=yes] file:$(pwd)/installers/ ./\n" >> /etc/apt/sources.list
     apt-get update
 
-
-.rpm-test-package-template: &rpm-test-package-template |
-    pushd build/
-    dnf --nogpgcheck localinstall *.rpm
-    popd
-    rm -rf build/
-
 .test-dev: &test-dev
   stage: cpack-test
   artifacts:
@@ -229,7 +222,6 @@ coverage:
     - echo ""
   script:
     - *cpack-update-apt-sources-template
-    - apt-cache search libgtirb
     - apt-get install -y libgtirb-functions-dev
     - '[ -f /usr/include/gtirb_functions/gtirb_functions.hpp ]'
 
@@ -310,9 +302,11 @@ test-rpm-dev:
   stage: cpack-test
   script:
     - pushd build/
-    - dnf --nogpgcheck localinstall -y capstone-devel-*.rpm libgtirb.rpm libgtirb-devel.rpm libgtirb-functions.rpm libgtirb-functions-devel.rpm
+    - dnf --nogpgcheck localinstall -y capstone-devel-*.rpm libgtirb.rpm libgtirb-devel.rpm libgtirb-functions-devel.rpm
     - popd
     - rm -rf build/
+    - '[ -f /usr/include/gtirb_functions/gtirb_functions.hpp ]'
+
 
 deploy-rpm:
   stage: cpack-deploy
