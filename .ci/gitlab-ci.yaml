@@ -233,24 +233,6 @@ coverage:
     - apt-get install -y libgtirb-functions-dev
     - '[ -f /usr/include/gtirb_functions/gtirb_functions.hpp ]'
 
-.test-lib: &test-lib
-  stage: cpack-test-shared-lib
-  before_script:
-    - echo ""
-  script:
-    - *cpack-update-apt-sources-template
-    - apt-cache search libgtirb
-    - apt-get install -y libgtirb-functions
-    - '[ -f /usr/lib/libgtirb-functions.so ]'
-    # - ./test-install GrammaTech
-
-.test-lib-dbg: &test-lib-dbg
-  stage: cpack-test
-  script:
-    - *cpack-update-apt-sources-template
-    - apt-cache search libgtirb
-    - apt-get install -y libgtirb-functions libgtirb-functions-dbg
-    - '[ -f /usr/lib/debug/.build-id/$(readelf -n /usr/lib/libgtirb-functions.so | grep "Build ID: " | cut -d":" -f2 | sed -E "s/ ([a-f0-9]{2,})([a-f0-9]{30,})/\1\/\2/g").debug ]'
 
 .debian-deploy: &debian-deploy
   stage: cpack-deploy
@@ -280,19 +262,6 @@ test-dev-ubuntu18:
   image: ${UBUNTU18_CPP_IMAGE}
   <<: *test-dev
 
-test-lib-ubuntu18:
-  variables:
-    DISTRO_NAME: bionic
-  needs: [setup-repo-ubuntu18, test-dev-ubuntu18]
-  image: ${UBUNTU18_CPP_IMAGE}
-  <<: *test-lib
-
-test-lib-dbg-ubuntu18:
-  variables:
-    DISTRO_NAME: bionic
-  needs: [setup-repo-ubuntu18]
-  image: ${UBUNTU18_CPP_IMAGE}
-  <<: *test-lib-dbg
 
 deploy-ubuntu18:
   needs: [setup-repo-ubuntu18, test-dev-ubuntu18, test-lib-ubuntu18]
@@ -315,27 +284,10 @@ test-dev-ubuntu20:
   needs: [setup-repo-ubuntu20]
   <<: *test-dev
 
-test-lib-ubuntu20:
-  variables:
-    DISTRO_NAME: focal
-  image: ${UBUNTU20_CPP_IMAGE}
-  needs: [setup-repo-ubuntu20, test-dev-ubuntu20]
-  before_script:
-    {}
-  <<: *test-lib
-
-test-lib-dbg-ubuntu20:
-  variables:
-    DISTRO_NAME: focal
-  image: ${UBUNTU20_CPP_IMAGE}
-  needs: [setup-repo-ubuntu20]
-  <<: *test-lib-dbg
-
 deploy-ubuntu20:
   image: ${UBUNTU20_CPP_IMAGE}
   needs: [setup-repo-ubuntu20, test-dev-ubuntu20, test-lib-ubuntu20]
   <<: *debian-deploy
-
 
 build-cpack-rpm:
   image: ${CENTOS8_CPP_IMAGE}
@@ -353,16 +305,6 @@ setup-repo-rpm:
    - mkdir installers
    - cp build/*.rpm ./installers/
 
-test-rpm-lib:
-  image: ${CENTOS8_CPP_IMAGE}
-  needs: [setup-repo-rpm]
-  stage: cpack-test
-  script:
-    - pushd build/
-    - dnf --nogpgcheck localinstall -y capstone-devel-*.rpm libgtirb.rpm libgtirb-functions.rpm
-    - popd
-    - rm -rf build/
-
 test-rpm-dev:
   image: ${CENTOS8_CPP_IMAGE}
   needs: [setup-repo-rpm]
@@ -372,7 +314,6 @@ test-rpm-dev:
     - dnf --nogpgcheck localinstall -y capstone-devel-*.rpm libgtirb.rpm libgtirb-devel.rpm libgtirb-functions.rpm libgtirb-functions-devel.rpm
     - popd
     - rm -rf build/
-
 
 deploy-rpm:
   stage: cpack-deploy
