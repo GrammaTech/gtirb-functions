@@ -59,7 +59,7 @@ private:
 
   SymbolSet NameSymbols;
 
-  Symbol* CanonName;
+  SymbolType* CanonName;
   std::string LongName;
 
   // helper functions
@@ -269,7 +269,7 @@ public:
   }
 
   /// \brief Returns the name of the function as recorded in AuxData
-  Symbol* getName() { return CanonName; }
+  SymbolType* getName() { return CanonName; }
 
   /// \brief Returns a pretty concatenation of the names of the functions,
   /// as a string view
