@@ -57,7 +57,7 @@ protected:
   std::map<UUID, std::set<UUID>> fn_blocks;
   std::map<UUID, std::set<UUID>> fn_entries;
   std::map<UUID, UUID> fn_names;
-  std::vector<Function> functions;
+  std::vector<Function<Module>> functions;
 
   void setupIR() {
     IR = IR::Create(C);
@@ -133,11 +133,25 @@ protected:
     auto tmp_names = fn_names;
     M->addAuxData<schema::FunctionNames>(std::move(tmp_names));
 
-    functions = Function::build_functions(C, *M);
+    functions = build_functions(C, *M);
   };
 };
 
 /// TESTS
+
+TEST_F(TestData, TEST_CONST) {
+  static_assert(std::is_same<Function<Module>::code_block_iterator,
+                             Function<Module>::CodeBlockSet::iterator>::value);
+
+  static_assert(std::is_same<
+                Function<const Module>::code_block_iterator,
+                Function<const Module>::CodeBlockSet::const_iterator>::value);
+
+  Function<const Module> f = functions[0];
+  // This fails at compile time, since you cannot convert e.g. a const CodeBlock
+  // * to a CodeBlock *
+  // Function<Module> f2 = f;
+}
 
 TEST_F(TestData, TEST_SIZE) { EXPECT_EQ(functions.size(), 2); }
 
