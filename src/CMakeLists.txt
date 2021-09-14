@@ -45,3 +45,7 @@ if(GTIRB_FUNCTIONS_ENABLE_TESTS)
   enable_testing()
   add_subdirectory(test)
 endif()
+
+if(NOT ENABLE_DEBUG)
+  add_compile_options(-DNDEBUG)
+endif()

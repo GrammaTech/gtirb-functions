@@ -34,8 +34,6 @@ option(ENABLE_CONAN "Use Conan to inject dependencies" OFF)
 option(ENABLE_CODE_COVERAGE
        "Build with instrumentation for collecting code coverage" OFF)
 
-option(GTIRB_FUNCTIONS_ENABLE_TESTS "run tests" ON)
-
 if(ENABLE_CODE_COVERAGE)
   if(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU OR ${CMAKE_CXX_COMPILER_ID} STREQUAL
                                               Clang)
@@ -64,7 +62,8 @@ else()
   set(BUILD_SHARED_LIBS OFF)
 endif()
 
-option(GTIRB_FUNCTIONS_ENABLE_TESTS "Enable build and running unit tests." ON)
+option(GTIRB_FUNCTIONS_ENABLE_TESTS "Enable build and running unit tests." OFF)
+option(ENABLE_DEBUG OFF)
 
 # Determine whether or not to strip debug symbols and set the build-id. This is
 # only really needed when we are building ubuntu *-dbg packages
