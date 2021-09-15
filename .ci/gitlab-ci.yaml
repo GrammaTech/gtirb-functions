@@ -15,9 +15,9 @@ variables:
 
 stages:
   - check-format
-  - pytest
+  - test_python
   - build
-  - test_package
+  - test_python_package
   - cpack-make-installers
   - cpack-test
   - cpack-test-shared-lib
@@ -57,8 +57,8 @@ check-format:
       ================================================================================
       EOF
 
-pytest:
-  stage: pytest
+test_python:
+  stage: test_python
   script:
     - pip install -r requirements-dev.txt
     - mypy gtirb_functions
@@ -73,10 +73,10 @@ build:
   script:
     - python3 setup.py sdist bdist_wheel
 
-test_package:
+test_python_package:
   variables:
     GIT_STRATEGY: none
-  stage: test_package
+  stage: test_python_package
   before_script: []
   script:
     - ls dist
@@ -215,9 +215,6 @@ coverage:
 
 .test-dev: &test-dev
   stage: cpack-test
-  artifacts:
-    paths:
-      - test-install
   before_script:
     - echo ""
   script:
