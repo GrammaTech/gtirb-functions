@@ -52,7 +52,7 @@ protected:
   Symbol *f1_symbol, *f2_symbol;
   CodeBlockMap blocks;
   std::set<gtirb::UUID> f1_blocks, f2_blocks;
-  UUID f1, f2;
+  UUID f1, f2, f3;
 
   std::map<UUID, std::set<UUID>> fn_blocks;
   std::map<UUID, std::set<UUID>> fn_entries;
@@ -112,7 +112,7 @@ protected:
   TestData() : C() {
     setupIR();
 
-    std::array<int, 6> inds{0, 1, 2, 3, 4, 5};
+    std::array<int, 11> inds = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     blocks = make_blocks(C, interval, inds);
 
     // build the CFG
@@ -121,9 +121,16 @@ protected:
     addFallthrough(1, 2);
     addReturn(2, 3);
     addReturn(4, 5);
+    addFallthrough(6, 8);
+    addFallthrough(7, 8);
+    addBranch(8, 9);
+    addFallthrough(8, 10);
+    addReturn(9, 11);
+    addReturn(10, 11);
 
-    f1 = make_function("f1", {0}, {0, 1, 2});
+    f1 = make_function("f1", {0, 1}, {0, 1, 2});
     f2 = make_function("f2", {4}, {4, 5});
+    f3 = make_function("f3", {6, 7}, {6, 7, 8, 9, 10});
 
     // write out aux data
     auto tmp_blocks = fn_blocks;
@@ -151,17 +158,20 @@ TEST_F(TestData, TEST_CONST) {
   // This fails at compile time, since you cannot convert e.g. a const CodeBlock
   // * to a CodeBlock *
   // Function<Module> f2 = f;
+  const Module& M2 = *M;
+  auto funs2 = build_functions(C, M2);
+  static_assert(std::is_same<decltype(funs2),
+                             std::vector<Function<const Module>>>::value);
 }
-
-TEST_F(TestData, TEST_SIZE) { EXPECT_EQ(functions.size(), 2); }
 
 TEST_F(TestData, TEST_NAMES) {
   for (auto& fun : functions) {
     const Symbol* name = fun.getName();
     auto& name_str = name->getName();
-    if (fun.getUUID() == f1) {
+    auto id = fun.getUUID();
+    if (id == f1) {
       EXPECT_TRUE(name_str == "f1");
-    } else {
+    } else if (id == f2) {
       EXPECT_TRUE(name_str == "f2");
     }
   }
@@ -172,7 +182,7 @@ TEST_F(TestData, TEST_UUIDS) {
   for (auto& fun : functions) {
     ids.insert(fun.getUUID());
   }
-  std::set<UUID> expected{f1, f2};
+  std::set<UUID> expected{f1, f2, f3};
   EXPECT_EQ(ids, expected);
 }
 
@@ -182,9 +192,18 @@ TEST_F(TestData, TEST_ENTRIES) {
     ASSERT_NE(entry_iter, fun.entry_blocks_end());
     auto& entry_block = *entry_iter;
     ASSERT_NE(entry_block, nullptr);
-    auto expected = fun.getUUID() == f1 ? blocks[0] : blocks[4];
-    EXPECT_EQ(entry_block, expected);
-    EXPECT_EQ(std::next(entry_iter), fun.entry_blocks_end());
+
+    if (fun.getUUID() == f1) {
+      std::set<UUID> entries;
+      for (auto& entry : fun.entry_blocks()) {
+        entries.insert(entry->getUUID());
+      }
+      EXPECT_EQ(entries,
+                (std::set{blocks[1]->getUUID(), blocks[0]->getUUID()}));
+    } else if (fun.getUUID() == f2) {
+      EXPECT_EQ(entry_block, blocks[4]);
+      EXPECT_EQ(std::next(entry_iter), fun.entry_blocks_end());
+    }
   }
 }
 
@@ -194,9 +213,21 @@ TEST_F(TestData, TEST_EXITS) {
     ASSERT_NE(exit_iter, fun.exit_blocks_end());
     auto& exit_block = *exit_iter;
     ASSERT_NE(exit_block, nullptr);
-    auto expected = fun.getUUID() == f1 ? blocks[2] : blocks[4];
-    EXPECT_EQ(exit_block, expected);
-    EXPECT_EQ(std::next(exit_iter), fun.exit_blocks_end());
+    auto id = fun.getUUID();
+    if (id == f1) {
+      EXPECT_EQ(exit_block, blocks[2]);
+      EXPECT_EQ(std::next(exit_iter), fun.exit_blocks_end());
+
+    } else if (id == f2) {
+      EXPECT_EQ(exit_block, blocks[4]);
+      EXPECT_EQ(std::next(exit_iter), fun.exit_blocks_end());
+    } else if (id == f3) {
+      std::set<CodeBlock*> exits;
+      for (auto& block : fun.exit_blocks()) {
+        exits.insert(block);
+      }
+      EXPECT_EQ(exits, (std::set<CodeBlock*>{blocks[9], blocks[10]}));
+    }
   }
 }
 
@@ -206,7 +237,13 @@ TEST_F(TestData, TEST_BLOCKS) {
     for (auto& block : fun.all_blocks()) {
       fn_ids.insert(block->getUUID());
     }
-    auto expected = fun.getUUID() == f1 ? fn_blocks[f1] : fn_blocks[f2];
-    EXPECT_EQ(fn_ids, expected);
+    auto id = fun.getUUID();
+    if (id == f1) {
+      EXPECT_EQ(fn_ids, fn_blocks[f1]);
+    } else if (id == f2) {
+      EXPECT_EQ(fn_ids, fn_blocks[f2]);
+    } else if (id == f3) {
+      EXPECT_EQ(fn_ids, fn_blocks[f3]);
+    }
   }
 }
