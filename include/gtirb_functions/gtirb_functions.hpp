@@ -124,7 +124,7 @@ private:
         }
       }
       size_t i = 0;
-      size_t Length = this->NameSymbols.size();
+      size_t Length = otherNames.size();
       for (auto& Sym : otherNames) {
         this->LongName += Sym->getName();
         if (i + 1 < Length) {

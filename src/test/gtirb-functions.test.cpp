@@ -132,6 +132,9 @@ protected:
     f2 = make_function("f2", {4}, {4, 5});
     f3 = make_function("f3", {6, 7}, {6, 7, 8, 9, 10});
 
+    auto sym = Symbol::Create(C, blocks[7], "f4");
+    M->addSymbol(sym);
+
     // write out aux data
     auto tmp_blocks = fn_blocks;
     M->addAuxData<schema::FunctionBlocks>(std::move(tmp_blocks));
@@ -173,6 +176,16 @@ TEST_F(TestData, TEST_NAMES) {
       EXPECT_TRUE(name_str == "f1");
     } else if (id == f2) {
       EXPECT_TRUE(name_str == "f2");
+    }
+  }
+}
+
+TEST_F(TestData, TEST_LONG_NAMES) {
+  for (auto& fun : functions) {
+    if (fun.getUUID() == f1) {
+      EXPECT_EQ(fun.getLongName(), "f1");
+    } else if (fun.getUUID() == f3) {
+      EXPECT_EQ(fun.getLongName(), "f3 (a.k.a f4)");
     }
   }
 }
