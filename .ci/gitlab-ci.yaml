@@ -12,11 +12,7 @@ variables:
 
 stages:
   - check-format
-<<<<<<< HEAD
   - test_python
-=======
-  - pytest
->>>>>>> renamed 'test' stage to 'pytest' bc it only runs python tests
   - build
   - test_python_package
   - cpack-make-installers
@@ -58,8 +54,8 @@ check-format:
       ================================================================================
       EOF
 
-pytest:
-  stage: pytest
+test_python:
+  stage: test_python
   script:
     - pip install -r requirements-dev.txt
     - mypy gtirb_functions
@@ -204,7 +200,12 @@ coverage:
 
 .test-dev: &test-dev
   stage: cpack-test
+<<<<<<< HEAD
   before_script: []
+=======
+  before_script:
+    - echo ""
+>>>>>>> renamed python stages
   script:
     - *cpack-update-apt-sources-template
     - apt-get install -y libgtirb-functions-dev
