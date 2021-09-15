@@ -220,7 +220,7 @@ coverage:
   script:
     - *cpack-update-apt-sources-template
     - apt-get install -y libgtirb-functions-dev
-    - '[ -f /usr/include/gtirb_functions/gtirb_functions.hpp ]'
+    - g++ .ci/test_install.cpp --std=c++17 -lgtirb
 
 
 .debian-deploy: &debian-deploy
@@ -302,7 +302,7 @@ test-rpm-dev:
     - dnf --nogpgcheck localinstall -y capstone-devel-*.rpm libgtirb.rpm libgtirb-devel.rpm libgtirb-functions-devel.rpm
     - popd
     - rm -rf build/
-    - '[ -f /usr/include/gtirb_functions/gtirb_functions.hpp ]'
+    - g++ .ci/test_install.cpp --std=c++17 -lgtirb
 
 
 deploy-rpm:
