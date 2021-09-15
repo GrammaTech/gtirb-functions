@@ -30,16 +30,26 @@
 
 namespace gtirb {
 
-template <class T> auto build_functions(Context& C, T& M);
+template <class ModuleType> class Function;
+std::vector<Function<Module>> build_functions(Context& C, Module& M);
+std::vector<Function<const Module>> build_functions(Context& C,
+                                                    const Module& M);
 
-/// \class Function serves as a thin wrapper around the function-related
+/// \class Function<T> serves as a thin wrapper around the function-related
 /// information in AuxData (FunctionEntries, FunctionBlocks, FunctionNames).
+///
+/// A Function is templated on the type of the Module that bore it, i.e.
+/// either Module or const Module. Function<Module> provides mutable access to
+/// its data, while Function<const Module> provides read-only access to its
+/// data.
 
 template <class ModuleType> class Function {
 
   using is_const_module = std::is_const<ModuleType>;
 
-  friend auto build_functions<ModuleType>(Context& C, ModuleType& M);
+  friend std::vector<Function<Module>> build_functions(Context& C, Module& M);
+  friend std::vector<Function<const Module>> build_functions(Context& C,
+                                                             const Module& M);
   template <class Other> friend class Function;
 
 public:
@@ -64,6 +74,8 @@ private:
 
   // helper functions
 
+  /// \brief Given the code blocks of a function, return the
+  /// subset of blocks that exit the function
   static CodeBlockSet findExitBlocks(ModuleType& M, CodeBlockSet& Blocks) {
     /*
      * Exit blocks are blocks whose outgoing edges are
@@ -105,7 +117,7 @@ private:
     default:
       this->LongName = this->CanonName->getName();
       this->LongName += " (a.k.a ";
-      std::vector<Symbol*> otherNames;
+      std::vector<SymbolType*> otherNames;
       for (auto& Sym : this->NameSymbols) {
         if (Sym != this->CanonName) {
           otherNames.push_back(Sym);
@@ -143,8 +155,6 @@ private:
   /// \return an vector containing the Functions in this module, possibly empty
   static std::vector<Function<ModuleType>> build_functions(Context& C,
                                                            ModuleType& Mod) {
-    // build table of symbols by referent.UUID
-    // Load AuxData re: functions
     auto* EntriesByFn = Mod.template getAuxData<schema::FunctionEntries>();
 
     auto* BlocksByFn = Mod.template getAuxData<schema::FunctionBlocks>();
@@ -159,6 +169,7 @@ private:
       CodeBlockSet EntryBlocks;
       SymbolSet NameSymbols;
 
+      // Look up the function's entry points and their names
       for (const auto& Id : FnEntryIds) {
         Node* FnBlockNode = Node::getByUUID(C, Id);
         if (CodeBlock* FnBlock = dyn_cast_or_null<CodeBlock>(FnBlockNode)) {
@@ -169,6 +180,7 @@ private:
         }
       }
 
+      // Look up the function blocks
       CodeBlockSet FnBlocks;
       auto FnBlockIdIter = BlocksByFn->find(FnId);
       if (FnBlockIdIter != BlocksByFn->end()) {
@@ -199,6 +211,11 @@ private:
   }
 
 public:
+  /// \brief Copy constructor between Function templates
+  /// Function<U> is constructable from Function<T> if its
+  /// members can be copied
+  /// In practice, this allows a Function<const Module> to be
+  /// constructed from Function<Module>, but not the other way around.
   template <typename T>
   Function(const Function<T>& F)
       : Uuid(F.Uuid), EntryBlocks(begin(F.EntryBlocks), end(F.EntryBlocks)),
@@ -279,8 +296,17 @@ public:
   const UUID& getUUID() { return Uuid; }
 };
 
-template <typename ModuleType> auto build_functions(Context& C, ModuleType& M) {
-  return Function<std::remove_reference_t<ModuleType>>::build_functions(C, M);
+/// \section Factories for building \class Functions from a \class Module
+
+/// \param C the GTIRB context for the module
+/// \param M the Module, either by reference or by constant reference
+std::vector<Function<Module>> build_functions(Context& C, Module& M) {
+  return Function<Module>::build_functions(C, M);
+}
+
+std::vector<Function<const Module>> build_functions(Context& C,
+                                                    const Module& M) {
+  return Function<const Module>::build_functions(C, M);
 }
 
 }; // namespace gtirb
