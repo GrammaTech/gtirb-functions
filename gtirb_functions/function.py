@@ -44,17 +44,17 @@ class Function(object):
         """
 
         self._uuid = uuid
-        self._entryBlocks = None if entryBlocks is None else set(entryBlocks)
+        self._entryBlocks = set() if entryBlocks is None else set(entryBlocks)
         self._exit_blocks = None if exitBlocks is None else set(exitBlocks)
-        self._blocks = None if blocks is None else set(blocks)
+        self._blocks = set() if blocks is None else set(blocks)
         self._name_symbols = (
-            None if name_symbols is None else list(name_symbols)
+            list() if name_symbols is None else list(name_symbols)
         )
 
     @classmethod
     def build_functions(cls, module):
         # type: (gtirb.Module) -> typing.List["Function"]
-        """Given a module, generate all the functions accosicated with it."""
+        """Given a module, generate all the functions associated with it."""
 
         symbols = collections.defaultdict(set)
         for symbol in module.symbols:
@@ -90,7 +90,7 @@ class Function(object):
             return "<unknown>"
 
     def get_entry_blocks(self):
-        # type: () -> typing.Optional[typing.Set[gtirb.CodeBlock]]
+        # type: () -> typing.Set[gtirb.CodeBlock]
         """Get the set of entry blocks into this function."""
 
         return self._entryBlocks
@@ -114,27 +114,27 @@ class Function(object):
         return self._exit_blocks
 
     def get_all_blocks(self):
-        # type: () -> typing.Optional[typing.Set[gtirb.CodeBlock]]
+        # type: () -> typing.Set[gtirb.CodeBlock]
         """Get all blocks in this function."""
 
         return self._blocks
 
     @property
     def uuid(self):
-        # type: () -> typing.Set[uuid.UUID]
+        # type: () -> uuid.UUID
         """Gets the UUID for the function."""
 
         return self._uuid
 
     @property
     def name_symbols(self):
-        # type: () -> typing.Optional[typing.List[gtirb.Symbol]]
+        # type: () -> typing.List[gtirb.Symbol]
         return self._name_symbols
 
     @property
     def names(self):
         # type: () -> typing.List[str]
-        return [s.name for s in (self.name_symbols or [])]
+        return [s.name for s in self.name_symbols]
 
     def __repr__(self):
         def block_addr(x):
