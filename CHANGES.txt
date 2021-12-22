@@ -1,5 +1,5 @@
 1.0.9 (Python) (Unreleased):
-- TBD
+- Added support for Python typing
 1.0.9 (Lisp) (Unreleased):
 - TBD
 

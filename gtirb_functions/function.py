@@ -107,8 +107,15 @@ class Function(object):
                 edge.source
                 for block in blocks
                 for edge in block.outgoing_edges
-                if edge.label.type in returns
-                or (edge.label.type not in calls and edge.target not in blocks)
+                if isinstance(edge.source, gtirb.CodeBlock)
+                and edge.label
+                and (
+                    edge.label.type in returns
+                    or (
+                        edge.label.type not in calls
+                        and edge.target not in blocks
+                    )
+                )
             }
 
         return self._exit_blocks
@@ -136,14 +143,16 @@ class Function(object):
         # type: () -> typing.List[str]
         return [s.name for s in self.name_symbols]
 
-    def __repr__(self):
-        def block_addr(x):
-            return x.byte_interval.address + x.offset
+    def __repr__(self) -> str:
+        def block_sort_key(
+            x: gtirb.CodeBlock,
+        ) -> typing.Tuple[typing.Optional[gtirb.ByteInterval], int]:
+            return (x.byte_interval, x.offset)
 
         return "[UUID={}, Name={}, Entry={}, Exit={}, All={}]".format(
             self._uuid,
             self.get_name(),
-            sorted(list(self._entryBlocks), key=block_addr),
-            sorted(list(self.get_exit_blocks()), key=block_addr),
-            sorted(list(self._blocks), key=block_addr),
+            sorted(list(self._entryBlocks), key=block_sort_key),
+            sorted(list(self.get_exit_blocks()), key=block_sort_key),
+            sorted(list(self._blocks), key=block_sort_key),
         )

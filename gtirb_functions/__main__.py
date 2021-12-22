@@ -17,7 +17,7 @@ from gtirb import IR
 from .function import Function
 
 
-def main():
+def main() -> None:
     ap = argparse.ArgumentParser(description="Show functions in GTIRB")
     ap.add_argument("infile")
     ap.add_argument(

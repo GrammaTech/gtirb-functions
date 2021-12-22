@@ -37,6 +37,7 @@ if __name__ == "__main__":
         author_email="gtirb@grammatech.com",
         description="Utilities for dealing with functions in GTIRB",
         packages=setuptools.find_packages(),
+        package_data={"gtirb_functions": ["py.typed"]},
         test_suite="setup.gtirb_functions_test_suite",
         install_requires=["gtirb"],
         classifiers=["Programming Language :: Python :: 3"],

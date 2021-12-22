@@ -44,6 +44,8 @@ check-format:
 test:
   stage: test
   script:
+    - pip install -r requirements-dev.txt
+    - mypy gtirb_functions
     - python3 setup.py test
 
 build:
