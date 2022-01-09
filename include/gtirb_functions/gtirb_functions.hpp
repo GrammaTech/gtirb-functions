@@ -32,7 +32,7 @@ namespace gtirb {
 
 template <class ModuleType> class Function;
 std::vector<Function<Module>> build_functions(Context& C, Module& M);
-std::vector<Function<const Module>> build_functions(Context& C,
+std::vector<Function<const Module>> build_functions(const Context& C,
                                                     const Module& M);
 
 /// \class Function<T> serves as a thin wrapper around the function-related
@@ -46,9 +46,11 @@ std::vector<Function<const Module>> build_functions(Context& C,
 template <class ModuleType> class Function {
 
   using is_const_module = std::is_const<ModuleType>;
+  using ContextType =
+      std::conditional_t<is_const_module::value, const Context, Context>;
 
   friend std::vector<Function<Module>> build_functions(Context& C, Module& M);
-  friend std::vector<Function<const Module>> build_functions(Context& C,
+  friend std::vector<Function<const Module>> build_functions(const Context& C,
                                                              const Module& M);
   template <class Other> friend class Function;
 
@@ -80,7 +82,8 @@ private:
     /*
      * Exit blocks are blocks whose outgoing edges are
      * returns or sysrets;
-     * calls or syscalls, and the target is not in the function
+     * edges whose target is not in the function, and which are neither
+     * direct calls or syscalls
      */
     auto Cfg = M.getIR()->getCFG();
     CodeBlockSet ExitBlocks;
@@ -93,7 +96,7 @@ private:
             ExitBlocks.insert(Block);
             break;
           }
-          if ((Type == EdgeType::Call) || (Type == EdgeType::Syscall)) {
+          if ((Type != EdgeType::Call) && (Type != EdgeType::Syscall)) {
             auto Dest = dyn_cast<CodeBlockType>(Succ);
             if ((Dest == nullptr) || (Blocks.find(Dest) == Blocks.end())) {
               ExitBlocks.insert(Block);
@@ -139,7 +142,7 @@ private:
   // Private constructor;
   Function(const UUID& Uuid_, const CodeBlockSet& Entries,
            const CodeBlockSet& Exits, const CodeBlockSet& Blocks,
-           const SymbolSet& Names, Symbol* canonName = nullptr)
+           const SymbolSet& Names, SymbolType* canonName = nullptr)
       : Uuid(Uuid_), EntryBlocks(Entries), ExitBlocks(Exits), AllBlocks(Blocks),
         NameSymbols(Names), CanonName(canonName) {
     set_name();
@@ -153,7 +156,7 @@ private:
   /// \param Mod The \class Module
 
   /// \return an vector containing the Functions in this module, possibly empty
-  static std::vector<Function<ModuleType>> build_functions(Context& C,
+  static std::vector<Function<ModuleType>> build_functions(ContextType& C,
                                                            ModuleType& Mod) {
     auto* EntriesByFn = Mod.template getAuxData<schema::FunctionEntries>();
 
@@ -171,8 +174,8 @@ private:
 
       // Look up the function's entry points and their names
       for (const auto& Id : FnEntryIds) {
-        Node* FnBlockNode = Node::getByUUID(C, Id);
-        if (CodeBlock* FnBlock = dyn_cast_or_null<CodeBlock>(FnBlockNode)) {
+        auto* FnBlockNode = Node::getByUUID(C, Id);
+        if (auto* FnBlock = dyn_cast_or_null<CodeBlock>(FnBlockNode)) {
           EntryBlocks.insert(FnBlock);
           for (auto& s : Mod.findSymbols(*FnBlock)) {
             NameSymbols.insert(&s);
@@ -193,7 +196,7 @@ private:
         }
       }
 
-      Symbol* CanonName = nullptr;
+      SymbolType* CanonName = nullptr;
       auto FnNameIter = FnNames->find(FnId);
       if (FnNameIter != FnNames->end()) {
         auto Id = (*FnNameIter).second;
@@ -304,7 +307,7 @@ std::vector<Function<Module>> build_functions(Context& C, Module& M) {
   return Function<Module>::build_functions(C, M);
 }
 
-std::vector<Function<const Module>> build_functions(Context& C,
+std::vector<Function<const Module>> build_functions(const Context& C,
                                                     const Module& M) {
   return Function<const Module>::build_functions(C, M);
 }
