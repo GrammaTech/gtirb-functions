@@ -126,11 +126,10 @@ protected:
     addBranch(8, 9);
     addFallthrough(8, 10);
     addReturn(9, 11);
-    addReturn(10, 11);
 
     f1 = make_function("f1", {0, 1}, {0, 1, 2});
     f2 = make_function("f2", {4}, {4, 5});
-    f3 = make_function("f3", {6, 7}, {6, 7, 8, 9, 10});
+    f3 = make_function("f3", {6, 7}, {6, 7, 8, 9});
 
     auto sym = Symbol::Create(C, blocks[7], "f4");
     M->addSymbol(sym);
@@ -239,7 +238,7 @@ TEST_F(TestData, TEST_EXITS) {
       for (auto& block : fun.exit_blocks()) {
         exits.insert(block);
       }
-      EXPECT_EQ(exits, (std::set<CodeBlock*>{blocks[9], blocks[10]}));
+      EXPECT_EQ(exits, (std::set<CodeBlock*>{blocks[8], blocks[9]}));
     }
   }
 }
