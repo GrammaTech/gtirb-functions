@@ -220,11 +220,10 @@ coverage:
 
 .test-dev: &test-dev
   stage: cpack-test
-  before_script:
-    - echo ""
+  before_script: []
   script:
     - *cpack-update-apt-sources-template
-    - apt-get install -y libgtirb-functions-dev
+    - apt-get install -y libgtirb-dev libgtirb-functions-dev
     - g++ .ci/test_install.cpp --std=c++17 -lgtirb
 
 
