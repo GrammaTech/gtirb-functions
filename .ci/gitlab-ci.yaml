@@ -223,7 +223,7 @@ coverage:
   before_script: []
   script:
     - *cpack-update-apt-sources-template
-    - apt-get install -y libgtirb-dev libgtirb-functions-dev
+    - apt-get install -y libgtirb-functions-dev
     - g++ .ci/test_install.cpp --std=c++17 -lgtirb
 
 
