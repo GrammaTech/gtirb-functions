@@ -184,7 +184,7 @@ coverage:
     - apt update -y && apt install -y libgtirb-dev
     - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DGTIRB_FUNCTIONS_STRIP_DEBUG_SYMBOLS=ON ..
     - make
-    - cpack -G DEB -D CPACK_GTIRB_FUNCTIONS_PACKAGE=dev -d CPACK_UBUNTU_NAME=$(lsb_release -sc)
+    - cpack -G DEB -D CPACK_GTIRB_FUNCTIONS_PACKAGE=dev -D CPACK_UBUNTU_NAME=$(lsb_release -sc)
 
 
 .build-cpack-rpm-template: &build-cpack-rpm-template
