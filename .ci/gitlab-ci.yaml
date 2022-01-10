@@ -140,6 +140,7 @@ export_internal:
 .ubuntu-build-template: &ubuntu-build
   stage: build
   needs: [check-format]
+  before_script: []
   script:
     - *conan-template
     - apt update -y && apt install -y libgtirb-dev
@@ -157,6 +158,7 @@ coverage:
   stage: build
   needs: [check-format]
   image: ${UBUNTU20_CPP_IMAGE}
+  before_script: []
   script:
     - *conan-template
     - mkdir build
@@ -172,11 +174,11 @@ coverage:
 .build-cpack-template: &build-cpack
   stage: build
   needs: [check-format]
+  before_script: []
   artifacts:
     paths:
       - build/
   script:
-    - ls build
     - mkdir build
     - cd build
     - apt update -y && apt install -y libgtirb-dev
