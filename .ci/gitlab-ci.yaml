@@ -142,6 +142,7 @@ export_internal:
   needs: [check-format]
   script:
     - *conan-template
+    - apt update -y && apt install -y libgtirb-dev
     - python3 create-conan-package.py --build=missing
 
 build-ubuntu20:
@@ -158,6 +159,7 @@ coverage:
   image: ${UBUNTU20_CPP_IMAGE}
   script:
     - *conan-template
+    - apt update -y && apt install -y libgtirb-dev
     - mkdir build
     - cd build
     - conan install ..
@@ -175,6 +177,7 @@ coverage:
     paths:
       - build/
   script:
+    - apt update -y && apt install -y libgtirb-dev
     - mkdir build
     - cd build
     - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DGTIRB_FUNCTIONS_STRIP_DEBUG_SYMBOLS=ON ..
