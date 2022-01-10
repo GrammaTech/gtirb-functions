@@ -159,7 +159,6 @@ coverage:
   image: ${UBUNTU20_CPP_IMAGE}
   script:
     - *conan-template
-    - apt update -y && apt install -y libgtirb-dev
     - mkdir build
     - cd build
     - conan install ..
@@ -177,9 +176,10 @@ coverage:
     paths:
       - build/
   script:
-    - apt update -y && apt install -y libgtirb-dev
+    - ls build
     - mkdir build
     - cd build
+    - apt update -y && apt install -y libgtirb-dev
     - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DGTIRB_FUNCTIONS_STRIP_DEBUG_SYMBOLS=ON ..
     - make
     - cpack -G DEB -D CPACK_GTIRB_FUNCTIONS_PACKAGE=dev
