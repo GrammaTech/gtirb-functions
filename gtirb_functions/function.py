@@ -24,10 +24,10 @@ class Function(object):
     def __init__(
         self,
         uuid: uuid.UUID,
-        entryBlocks: Iterable[gtirb.CodeBlock] = None,
-        blocks: Iterable[gtirb.CodeBlock] = None,
-        name_symbols: Iterable[gtirb.Symbol] = None,
-        exitBlocks: Iterable[gtirb.CodeBlock] = None,
+        entryBlocks: Optional[Iterable[gtirb.CodeBlock]] = None,
+        blocks: Optional[Iterable[gtirb.CodeBlock]] = None,
+        name_symbols: Optional[Iterable[gtirb.Symbol]] = None,
+        exitBlocks: Optional[Iterable[gtirb.CodeBlock]] = None,
     ):
         """Construct a new function.
 
