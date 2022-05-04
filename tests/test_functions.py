@@ -51,6 +51,8 @@ class FunctionTest(unittest.TestCase):
         )
         f2_name = gtirb.Symbol(name="f2", payload=f2_blocks[0])
         f2_name.module = module
+        f2_alt_name = gtirb.Symbol(name="f2.localalias", payload=f2_blocks[0])
+        f2_alt_name.module = module
 
         module.aux_data["functionBlocks"] = gtirb.AuxData(
             type_name="mapping<UUID,set<UUID>>",
@@ -62,16 +64,26 @@ class FunctionTest(unittest.TestCase):
             data={f1: {f1_blocks[0]}, f2: {f2_blocks[0]}},
         )
 
+        module.aux_data["functionNames"] = gtirb.AuxData(
+            type_name="mapping<UUID,UUID>", data={f1: f1_name, f2: f2_name},
+        )
+
         matches = 0
         for fun in gtirb_functions.Function.build_functions(module):
             if fun.get_name() == "f1":
                 self.assertEqual(fun.uuid, f1)
+                self.assertEqual(set(fun.names), {"f1"})
+                self.assertEqual(set(fun.name_symbols), {f1_name})
+                self.assertEqual(fun.canonical_name_symbol, f1_name)
                 self.assertEqual(fun.get_entry_blocks(), {f1_blocks[0]})
                 self.assertEqual(fun.get_exit_blocks(), {f1_blocks[-2]})
                 self.assertEqual(fun.get_all_blocks(), set(f1_blocks[:-1]))
                 matches += 1
             elif fun.get_name() == "f2":
                 self.assertEqual(fun.uuid, f2)
+                self.assertEqual(set(fun.names), {"f2", "f2.localalias"})
+                self.assertEqual(set(fun.name_symbols), {f2_name, f2_alt_name})
+                self.assertEqual(fun.canonical_name_symbol, f2_name)
                 self.assertEqual(fun.get_entry_blocks(), {f2_blocks[0]})
                 self.assertEqual(fun.get_exit_blocks(), {f2_blocks[-2]})
                 self.assertEqual(fun.get_all_blocks(), set(f2_blocks[:-1]))

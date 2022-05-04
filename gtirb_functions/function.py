@@ -28,6 +28,7 @@ class Function(object):
         blocks: Optional[Iterable[gtirb.CodeBlock]] = None,
         name_symbols: Optional[Iterable[gtirb.Symbol]] = None,
         exitBlocks: Optional[Iterable[gtirb.CodeBlock]] = None,
+        canonical_name_symbol: Optional[gtirb.Symbol] = None,
     ):
         """Construct a new function.
 
@@ -41,6 +42,8 @@ class Function(object):
         the function.
         :param exitBlocks: A set of code blocks that represent possible points
         where control could leave the function.
+        :param canonical_name_symbol: The symbol that should be considered
+        the canonical name for the function.
         """
 
         self._uuid = uuid
@@ -50,6 +53,12 @@ class Function(object):
         self._name_symbols = (
             list() if name_symbols is None else list(name_symbols)
         )
+        self._canonical_name_symbol = canonical_name_symbol
+        if (
+            canonical_name_symbol
+            and canonical_name_symbol not in self._name_symbols
+        ):
+            self._name_symbols.append(canonical_name_symbol)
 
     @classmethod
     def build_functions(cls, module: gtirb.Module) -> List["Function"]:
@@ -64,6 +73,7 @@ class Function(object):
             "functionEntries"
         ].data.items():
             blocks = module.aux_data["functionBlocks"].data[uuid]
+            name = module.aux_data["functionNames"].data.get(uuid)
             syms = [s for b in entryBlocks for s in symbols[b]]
             functions.append(
                 Function(
@@ -72,12 +82,16 @@ class Function(object):
                     blocks=blocks,
                     name_symbols=syms,
                     exitBlocks=None,
+                    canonical_name_symbol=name,
                 )
             )
         return functions
 
     def get_name(self) -> str:
         """Get the name of this function as a str."""
+
+        if self._canonical_name_symbol:
+            return self._canonical_name_symbol.name
 
         names = [s.name for s in self._name_symbols]
         if len(names) == 1:
@@ -126,6 +140,15 @@ class Function(object):
         """Gets the UUID for the function."""
 
         return self._uuid
+
+    @property
+    def canonical_name_symbol(self) -> Optional[gtirb.Symbol]:
+        """
+        The canonical/primary name symbol for the function. May be None if the
+        function has no associated symbols or if there are multiple symbols
+        but none them are known to be the canonical symbol.
+        """
+        return self._canonical_name_symbol
 
     @property
     def name_symbols(self) -> List[gtirb.Symbol]:
