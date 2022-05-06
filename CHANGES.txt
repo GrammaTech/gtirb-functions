@@ -1,10 +1,8 @@
-1.0.9 (Python) (Unreleased):
+1.0.9 (Python):
 - Added support for Python typing
 - The functionNames aux data table is now used for determing a function's name,
   plus there is a new property, canonical_name_symbol, for knowing which symbol
   should be the primary one
-1.0.9 (Lisp) (Unreleased):
-- TBD
 
 1.0.8 (Python):
 - get_all_blocks and get_entry_blocks now always return a set
