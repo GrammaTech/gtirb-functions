@@ -85,8 +85,12 @@ private:
      * edges whose target is not in the function, and which are neither
      * direct calls or syscalls
      */
-    auto Cfg = M.getIR()->getCFG();
     CodeBlockSet ExitBlocks;
+    auto* Ir = M.getIr();
+    if (!Ir) {
+      return ExitBlocks;
+    }
+    auto Cfg = Ir->getCFG();
     for (auto& Block : Blocks) {
       for (auto Succ_pair : cfgSuccessors(Cfg, Block)) {
         auto [Succ, Edge_label] = Succ_pair;
@@ -166,48 +170,54 @@ private:
 
     std::vector<Function<ModuleType>> Fns;
 
-    for (const auto& FnEntry : *EntriesByFn) {
+    if (EntriesByFn) {
+      for (const auto& FnEntry : *EntriesByFn) {
 
-      auto& [FnId, FnEntryIds] = FnEntry;
-      CodeBlockSet EntryBlocks;
-      SymbolSet NameSymbols;
+        auto& [FnId, FnEntryIds] = FnEntry;
+        CodeBlockSet EntryBlocks;
+        SymbolSet NameSymbols;
 
-      // Look up the function's entry points and their names
-      for (const auto& Id : FnEntryIds) {
-        auto* FnBlockNode = Node::getByUUID(C, Id);
-        if (auto* FnBlock = dyn_cast_or_null<CodeBlock>(FnBlockNode)) {
-          EntryBlocks.insert(FnBlock);
-          for (auto& s : Mod.findSymbols(*FnBlock)) {
-            NameSymbols.insert(&s);
+        // Look up the function's entry points and their names
+        for (const auto& Id : FnEntryIds) {
+          auto* FnBlockNode = Node::getByUUID(C, Id);
+          if (auto* FnBlock = dyn_cast_or_null<CodeBlock>(FnBlockNode)) {
+            EntryBlocks.insert(FnBlock);
+            for (auto& s : Mod.findSymbols(*FnBlock)) {
+              NameSymbols.insert(&s);
+            }
           }
         }
-      }
 
-      // Look up the function blocks
-      CodeBlockSet FnBlocks;
-      auto FnBlockIdIter = BlocksByFn->find(FnId);
-      if (FnBlockIdIter != BlocksByFn->end()) {
-        auto FnBlockIds = (*FnBlockIdIter).second;
-        for (const auto& Id : FnBlockIds) {
-          if (auto Block =
-                  dyn_cast_or_null<CodeBlock>(Node::getByUUID(C, Id))) {
-            FnBlocks.insert(Block);
+        if (BlocksByFn) {
+          // Look up the function blocks
+          CodeBlockSet FnBlocks;
+          auto FnBlockIdIter = BlocksByFn->find(FnId);
+          if (FnBlockIdIter != BlocksByFn->end()) {
+            auto FnBlockIds = (*FnBlockIdIter).second;
+            for (const auto& Id : FnBlockIds) {
+              if (auto Block =
+                      dyn_cast_or_null<CodeBlock>(Node::getByUUID(C, Id))) {
+                FnBlocks.insert(Block);
+              }
+            }
           }
         }
+
+        if (FnNames) {
+          SymbolType* CanonName = nullptr;
+          auto FnNameIter = FnNames->find(FnId);
+          if (FnNameIter != FnNames->end()) {
+            auto Id = (*FnNameIter).second;
+            CanonName = dyn_cast<Symbol>(Symbol::getByUUID(C, Id));
+          }
+        }
+
+        CodeBlockSet ExitBlocks = findExitBlocks(Mod, FnBlocks);
+
+        Function Fn{FnId,     EntryBlocks, ExitBlocks,
+                    FnBlocks, NameSymbols, CanonName};
+        Fns.push_back(Fn);
       }
-
-      SymbolType* CanonName = nullptr;
-      auto FnNameIter = FnNames->find(FnId);
-      if (FnNameIter != FnNames->end()) {
-        auto Id = (*FnNameIter).second;
-        CanonName = dyn_cast<Symbol>(Symbol::getByUUID(C, Id));
-      }
-
-      CodeBlockSet ExitBlocks = findExitBlocks(Mod, FnBlocks);
-
-      Function Fn{FnId,     EntryBlocks, ExitBlocks,
-                  FnBlocks, NameSymbols, CanonName};
-      Fns.push_back(Fn);
     }
 
     return Fns;
