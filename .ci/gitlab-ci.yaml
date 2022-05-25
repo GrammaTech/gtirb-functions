@@ -5,12 +5,9 @@ variables:
   # consistent with OS versions.
   UBUNTU20_BASE_IMAGE: ubuntu:20.04
   UBUNTU18_BASE_IMAGE: ubuntu:18.04
-  CENTOS_BASE_IMAGE: centos:8
   # Projects may want to use images in their own namespace
   UBUNTU20_CPP_IMAGE: $DOCKER_REGISTRY/rewriting/gtirb-functions/ubuntu20
   UBUNTU18_CPP_IMAGE: $DOCKER_REGISTRY/rewriting/gtirb-functions/ubuntu18
-  CENTOS8_CPP_IMAGE: $DOCKER_REGISTRY/rewriting/gtirb-functions/centos8
-
 
 
 stages:
@@ -186,24 +183,6 @@ coverage:
     - make
     - cpack -G DEB -D CPACK_GTIRB_FUNCTIONS_PACKAGE=dev -D CPACK_UBUNTU_NAME=$(lsb_release -sc)
 
-
-.build-cpack-rpm-template: &build-cpack-rpm-template
-  stage: build
-  needs: [check-format]
-  artifacts:
-    paths:
-      - build/
-  script:
-    - mkdir build
-    - cd build
-    - curl -L https://git.grammatech.com/rewriting/extra-packages/-/jobs/artifacts/master/download?job=capstone-linux-rpm --output "capstone.zip"
-    - curl -L https://git.grammatech.com/rewriting/gtirb/-/jobs/artifacts/master/download?job=package-centos8 --output "gtirb.zip"
-    - for pkg in gtirb capstone; do unzip $pkg.zip; done
-    - dnf --nogpgcheck localinstall -y capstone-devel-*.rpm libgtirb.rpm libgtirb-devel.rpm
-    - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DGTIRB_FUNCTIONS_STRIP_DEBUG_SYMBOLS=ON ..
-    - make
-    - cpack -G RPM -D CPACK_GTIRB_FUNCTIONS_PACKAGE=dev
-
 .setup-repo: &setup-repo
   stage: cpack-make-installers
   artifacts:
@@ -280,41 +259,3 @@ deploy-ubuntu20:
   image: ${UBUNTU20_CPP_IMAGE}
   needs: [setup-repo-ubuntu20, test-dev-ubuntu20]
   <<: *debian-deploy
-
-build-cpack-rpm:
-  image: ${CENTOS8_CPP_IMAGE}
-  <<: *build-cpack-rpm-template
-
-setup-repo-rpm:
-  image: ${CENTOS8_CPP_IMAGE}
-  needs: [build-cpack-rpm]
-  stage: cpack-make-installers
-  artifacts:
-    paths:
-        - build/
-        - installers/
-  script:
-   - mkdir installers
-   - cp build/*.rpm ./installers/
-
-test-rpm-dev:
-  image: ${CENTOS8_CPP_IMAGE}
-  needs: [setup-repo-rpm]
-  stage: cpack-test
-  script:
-    - pushd build/
-    - dnf --nogpgcheck localinstall -y capstone-devel-*.rpm libgtirb.rpm libgtirb-devel.rpm libgtirb-functions-devel.rpm
-    - popd
-    - rm -rf build/
-    - g++ .ci/test_install.cpp --std=c++17 -lgtirb
-
-
-deploy-rpm:
-  stage: cpack-deploy
-  image: ${CENTOS8_CPP_IMAGE}
-  needs: [setup-repo-rpm, test-rpm-dev]
-  script:
-    - cp installers/*.rpm ./
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
