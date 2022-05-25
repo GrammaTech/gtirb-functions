@@ -10,24 +10,6 @@ using namespace gtirb;
 using CodeBlockMap = std::map<int, CodeBlock*>;
 using GraphEdge = std::tuple<int, int, EdgeType, ConditionalEdge>;
 
-template <size_t N>
-void generate_subgraph(IR* IR, CodeBlockMap blocks,
-                       std::array<GraphEdge, N> edges) {
-  auto& graph = IR->getCFG();
-  for (const auto& edge : edges) {
-    auto& [src, dst, edge_type, cond] = edge;
-    CodeBlock* b1 = blocks[src];
-    CodeBlock* b2 = blocks[dst];
-    addVertex(b1, graph);
-    addVertex(b2, graph);
-    auto const opt_edgedesc = gtirb::addEdge(b1, b2, graph);
-    if (opt_edgedesc) {
-      EdgeLabel prop{std::tuple{cond, DirectEdge::IsDirect, edge_type}};
-      graph[*opt_edgedesc] = prop;
-    }
-  }
-}
-
 template <size_t Num>
 CodeBlockMap make_blocks(Context& C, ByteInterval* interval,
                          std::array<int, Num> indices) {
@@ -84,6 +66,7 @@ protected:
     fn_names[id] = sym->getUUID();
     return id;
   }
+
   void addEdge(int src, int dst, EdgeType edge_type, ConditionalEdge cond) {
     auto& graph = IR->getCFG();
     CodeBlock* b1 = blocks[src];
