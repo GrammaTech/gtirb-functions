@@ -141,6 +141,7 @@ export_internal:
   script:
     - *conan-template
     - apt update -y && apt install -y libgtirb-dev
+    - conan install .
     - python3 create-conan-package.py --build=missing
 
 build-ubuntu20:
