@@ -86,7 +86,7 @@ private:
      * direct calls or syscalls
      */
     CodeBlockSet ExitBlocks;
-    auto* Ir = M.getIr();
+    auto* Ir = M.getIR();
     if (!Ir) {
       return ExitBlocks;
     }
@@ -188,9 +188,9 @@ private:
           }
         }
 
+        CodeBlockSet FnBlocks;
         if (BlocksByFn) {
           // Look up the function blocks
-          CodeBlockSet FnBlocks;
           auto FnBlockIdIter = BlocksByFn->find(FnId);
           if (FnBlockIdIter != BlocksByFn->end()) {
             auto FnBlockIds = (*FnBlockIdIter).second;
@@ -203,8 +203,8 @@ private:
           }
         }
 
+        SymbolType* CanonName = nullptr;
         if (FnNames) {
-          SymbolType* CanonName = nullptr;
           auto FnNameIter = FnNames->find(FnId);
           if (FnNameIter != FnNames->end()) {
             auto Id = (*FnNameIter).second;
