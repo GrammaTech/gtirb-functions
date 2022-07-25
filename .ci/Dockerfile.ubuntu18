@@ -22,7 +22,7 @@ RUN apt-get update -y && apt-get install -y libboost${BOOST_VERSION}-dev
 
 # install gtirb
 RUN wget -O - https://download.grammatech.com/gtirb/files/apt-repo/conf/apt.gpg.key | apt-key add -
-RUN echo "deb https://download.grammatech.com/gtirb/files/apt-repo bionic unstable"|  tee -a /etc/apt/sources.list
+RUN echo "deb https://download.grammatech.com/gtirb/files/apt-repo bionic stable"|  tee -a /etc/apt/sources.list
 
 # Use EDT for timestamps (necessary?)
 RUN ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
