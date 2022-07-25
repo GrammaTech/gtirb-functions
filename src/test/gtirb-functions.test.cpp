@@ -23,9 +23,9 @@ NodeMap make_code_blocks(Context& C, ByteInterval* interval,
   return blocks;
 }
 
-template <typename NodeTy>
-NodeTy* get_block(NodeMap& map, NodeMap::key_type i) {
-  return static_cast<NodeTy*>(map[i]);
+CodeBlock* get_code_block(NodeMap& map, NodeMap::key_type i) {
+  auto* block = dyn_cast<CodeBlock>(map[i]);
+  return block;
 }
 
 class TestData : public ::testing::Test {
@@ -67,7 +67,7 @@ protected:
       fn_blocks[id].insert(blocks[b]->getUUID());
     }
     auto sym =
-        Symbol::Create(C, get_block<CodeBlock>(blocks, Entries[0]), Name);
+        gtirb::Symbol::Create(C, get_code_block(blocks, Entries[0]), Name);
     M->addSymbol(sym);
     fn_names[id] = sym->getUUID();
     return id;
@@ -129,7 +129,7 @@ protected:
     f2 = make_function("f2", {4}, {4, 5});
     f3 = make_function("f3", {6, 7}, {6, 7, 8, 9});
 
-    auto sym = Symbol::Create(C, get_block<CodeBlock>(blocks, 7), "f4");
+    auto sym = Symbol::Create(C, get_code_block(blocks, 7), "f4");
     M->addSymbol(sym);
 
     // write out aux data
@@ -236,8 +236,8 @@ TEST_F(TestData, TEST_EXITS) {
       for (auto& block : fun.exit_blocks()) {
         exits.insert(block);
       }
-      EXPECT_EQ(exits, (std::set<CodeBlock*>{get_block<CodeBlock>(blocks, 8),
-                                             get_block<CodeBlock>(blocks, 9)}));
+      EXPECT_EQ(exits, (std::set<CodeBlock*>{get_code_block(blocks, 8),
+                                             get_code_block(blocks, 9)}));
     }
   }
 }
