@@ -7,13 +7,13 @@
 #include <gtest/gtest.h>
 
 using namespace gtirb;
-using CodeBlockMap = std::map<int, CodeBlock*>;
+using NodeMap = std::map<int, CfgNode*>;
 using GraphEdge = std::tuple<int, int, EdgeType, ConditionalEdge>;
 
 template <size_t Num>
-CodeBlockMap make_blocks(Context& C, ByteInterval* interval,
+NodeMap make_code_blocks(Context& C, ByteInterval* interval,
                          std::array<int, Num> indices) {
-  CodeBlockMap blocks;
+  NodeMap blocks;
   for (auto& i : indices) {
     auto* block = CodeBlock::Create(C, i);
     block->setSize(1);
@@ -21,6 +21,11 @@ CodeBlockMap make_blocks(Context& C, ByteInterval* interval,
     interval->addBlock(i + 1, block);
   }
   return blocks;
+}
+
+template <typename NodeTy>
+NodeTy* get_block(NodeMap& map, NodeMap::key_type i) {
+  return static_cast<NodeTy*>(map[i]);
 }
 
 class TestData : public ::testing::Test {
@@ -32,7 +37,7 @@ protected:
   gtirb::Section* S;
   gtirb::ByteInterval* interval;
   Symbol *f1_symbol, *f2_symbol;
-  CodeBlockMap blocks;
+  NodeMap blocks;
   std::set<gtirb::UUID> f1_blocks, f2_blocks;
   UUID f1, f2, f3;
 
@@ -61,7 +66,8 @@ protected:
     for (auto& b : Blocks) {
       fn_blocks[id].insert(blocks[b]->getUUID());
     }
-    auto sym = Symbol::Create(C, blocks[Entries[0]], Name);
+    auto sym =
+        Symbol::Create(C, get_block<CodeBlock>(blocks, Entries[0]), Name);
     M->addSymbol(sym);
     fn_names[id] = sym->getUUID();
     return id;
@@ -69,15 +75,23 @@ protected:
 
   void addEdge(int src, int dst, EdgeType edge_type, ConditionalEdge cond) {
     auto& graph = IR->getCFG();
-    CodeBlock* b1 = blocks[src];
-    CodeBlock* b2 = blocks[dst];
+    auto* b1 = blocks[src];
+    auto* b2 = blocks[dst];
+    if (!b1) {
+      std::cerr << "block[" << src << "] missing\n";
+      ASSERT_TRUE(false);
+    }
+    if (!b2) {
+      std::cerr << "block[" << dst << "] missing\n";
+      ASSERT_TRUE(false);
+    }
     addVertex(b1, graph);
     addVertex(b2, graph);
     auto const opt_edgedesc = gtirb::addEdge(b1, b2, graph);
-    if (opt_edgedesc) {
-      EdgeLabel prop{std::tuple{cond, DirectEdge::IsDirect, edge_type}};
-      graph[*opt_edgedesc] = prop;
-    }
+    ASSERT_TRUE(opt_edgedesc);
+
+    EdgeLabel prop{std::tuple{cond, DirectEdge::IsDirect, edge_type}};
+    graph[*opt_edgedesc] = prop;
   }
 
   void addFallthrough(int src, int dst) {
@@ -95,8 +109,9 @@ protected:
   TestData() : C() {
     setupIR();
 
-    std::array<int, 11> inds = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-    blocks = make_blocks(C, interval, inds);
+    std::array<int, 12> CodeBlockInds = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    blocks = make_code_blocks(C, interval, CodeBlockInds);
+    blocks[11] = gtirb::ProxyBlock::Create(C);
 
     // build the CFG
     addFallthrough(0, 1);
@@ -114,7 +129,7 @@ protected:
     f2 = make_function("f2", {4}, {4, 5});
     f3 = make_function("f3", {6, 7}, {6, 7, 8, 9});
 
-    auto sym = Symbol::Create(C, blocks[7], "f4");
+    auto sym = Symbol::Create(C, get_block<CodeBlock>(blocks, 7), "f4");
     M->addSymbol(sym);
 
     // write out aux data
@@ -221,7 +236,8 @@ TEST_F(TestData, TEST_EXITS) {
       for (auto& block : fun.exit_blocks()) {
         exits.insert(block);
       }
-      EXPECT_EQ(exits, (std::set<CodeBlock*>{blocks[8], blocks[9]}));
+      EXPECT_EQ(exits, (std::set<CodeBlock*>{get_block<CodeBlock>(blocks, 8),
+                                             get_block<CodeBlock>(blocks, 9)}));
     }
   }
 }
