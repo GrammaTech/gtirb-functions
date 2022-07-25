@@ -200,12 +200,7 @@ coverage:
 
 .test-dev: &test-dev
   stage: cpack-test
-<<<<<<< HEAD
   before_script: []
-=======
-  before_script:
-    - echo ""
->>>>>>> renamed python stages
   script:
     - *cpack-update-apt-sources-template
     - apt-get install -y libgtirb-functions-dev
