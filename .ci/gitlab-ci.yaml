@@ -126,6 +126,7 @@ export_internal:
 
 
 .conan-template: &conan-template
+  - pip3 install --upgrade conan
   - conan profile new default --detect
   - conan profile update settings.compiler.libcxx=libstdc++11 default
   - conan remote add gitlab ${CI_API_V4_URL}/packages/conan
