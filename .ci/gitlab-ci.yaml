@@ -4,10 +4,8 @@ variables:
   # Note: keep "rpm-installer-centos8" and "debian-installer-ubuntu20" job names below
   # consistent with OS versions.
   UBUNTU20_BASE_IMAGE: ubuntu:20.04
-  UBUNTU18_BASE_IMAGE: ubuntu:18.04
   # Projects may want to use images in their own namespace
   UBUNTU20_CPP_IMAGE: $DOCKER_REGISTRY/rewriting/gtirb-functions/ubuntu20
-  UBUNTU18_CPP_IMAGE: $DOCKER_REGISTRY/rewriting/gtirb-functions/ubuntu18
 
 
 stages:
@@ -148,10 +146,6 @@ build-ubuntu20:
   image: ${UBUNTU20_CPP_IMAGE}
   <<: *ubuntu-build
 
-build-ubuntu18:
-  image: ${UBUNTU18_CPP_IMAGE}
-  <<: *ubuntu-build
-
 coverage:
   stage: build
   needs: [check-format]
@@ -217,28 +211,6 @@ coverage:
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
     - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
-
-
-build-cpack-ubuntu18:
-  image: ${UBUNTU18_CPP_IMAGE}
-  <<: *build-cpack
-
-setup-repo-ubuntu18:
-  needs: [build-cpack-ubuntu18]
-  image: ${UBUNTU18_CPP_IMAGE}
-  <<: *setup-repo
-
-test-dev-ubuntu18:
-  variables:
-    DISTRO_NAME: bionic
-  needs: [setup-repo-ubuntu18]
-  image: ${UBUNTU18_CPP_IMAGE}
-  <<: *test-dev
-
-deploy-ubuntu18:
-  needs: [setup-repo-ubuntu18, test-dev-ubuntu18]
-  image: ${UBUNTU18_CPP_IMAGE}
-  <<: *debian-deploy
 
 build-cpack-ubuntu20:
   image: ${UBUNTU20_CPP_IMAGE}
