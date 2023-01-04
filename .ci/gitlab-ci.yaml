@@ -21,7 +21,7 @@ stages:
 
 default:
   image: $DOCKER_REGISTRY/rewriting/gtirb-functions
-  tags: ['kubernetes']
+  tags: ['shared']
   before_script:
     - pip install --pre --extra-index-url=$EXTRA_INDEX_URL .
 
