@@ -6,7 +6,7 @@ variables:
   UBUNTU20_BASE_IMAGE: ubuntu:20.04
   # Projects may want to use images in their own namespace
   UBUNTU20_CPP_IMAGE: $DOCKER_REGISTRY/rewriting/gtirb-functions/ubuntu20
-  CONAN_VERSION: 1.59
+  CONAN_VERSION: "1.59"
 
 
 stages:
