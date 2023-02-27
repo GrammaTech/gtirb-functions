@@ -6,6 +6,7 @@ variables:
   UBUNTU20_BASE_IMAGE: ubuntu:20.04
   # Projects may want to use images in their own namespace
   UBUNTU20_CPP_IMAGE: $DOCKER_REGISTRY/rewriting/gtirb-functions/ubuntu20
+  CONAN_VERSION: 1.59
 
 
 stages:
@@ -126,7 +127,7 @@ export_internal:
 
 
 .conan-template: &conan-template
-  - pip3 install --upgrade conan
+  - pip3 install --upgrade conan~=$CONAN_VERSION
   - conan profile new default --detect
   - conan profile update settings.compiler.libcxx=libstdc++11 default
   - conan remote add gitlab ${CI_API_V4_URL}/packages/conan
