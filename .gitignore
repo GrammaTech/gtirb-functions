@@ -1,13 +1,20 @@
 # Python files and directories
-*.pyc
-__pycache__/
-.mypy_cache/
 /*.egg-info/
+*.pyc
+.mypy_cache/
+.tox/
+__pycache__/
 /build/
 /dist/
+/src/gtirb_functions/version.py
 
 # IDE files and directories
 /.vscode/
+
+# Coverage artifacts
+.coverage
+coverage.xml
+junit-*.xml
 
 # Other files and directories
 core.*
@@ -19,5 +26,4 @@ googletest*
 
 #gtirb headers
 Pipfile.lock
-pyproject.toml
 Pipfile

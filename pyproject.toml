@@ -1,0 +1,98 @@
+[build-system]
+requires = ["setuptools >= 64", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gtirb-functions"
+dynamic = ["version"]
+description = "Utilities for dealing with functions in GTIRB"
+readme = "README.md"
+keywords = []
+authors = [
+    {name = "GrammaTech, Inc.", email = "gtirb@grammatech.com"},
+]
+license = { text="MIT" }
+# setuptools 77 is the first version which supports PEP 639, but
+# it does not support Python 3.8. The following should be used
+# once 3.8 is no longer supported.
+#
+# license = "MIT"
+# license-files = ["LICENSE.txt"]
+
+requires-python = ">=3.8"
+
+# Classifiers, see https://pypi.org/classifiers/.
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+
+# Dependencies and optional dependencies. See
+# https://git.grammatech.com/research/templates/python-module/-/wikis/Dependencies-and-Requirements
+
+dependencies = [
+    "gtirb>=1.10.7",
+]
+
+[project.scripts]
+gtirb-functions = "gtirb_functions.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/GrammaTech/gtirb-functions/"
+Repository = "https://github.com/GrammaTech/gtirb-functions.git"
+Issues = "https://github.com/GrammaTech/gtirb-functions/issues"
+
+################################################################################
+# Tool settings
+
+# Version numbers
+[tool.setuptools_scm]
+version_file = "src/gtirb_functions/version.py"
+
+# Code formatting
+# See https://black.readthedocs.io/
+[tool.black]
+line-length = 79
+
+# Import statement formatting
+# See https://pycqa.github.io/isort/
+[tool.isort]
+profile = "black"
+line_length = 79
+
+# Test coverage
+# See https://coverage.readthedocs.io/
+[tool.coverage.run]
+source = ["gtirb_functions", "test"]
+branch = true
+
+[tool.coverage.report]
+# Testing should always achieve a minimum level of coverage of the project.
+# Feel free to increase this threshold: 90 can be a good, if ambitious, target.
+fail_under = 75
+show_missing = true
+exclude_also = [
+    "if __name__ == .__main__.:",
+    "if (typing\\.)?TYPE_CHECKING:",
+]
+
+[tool.coverage.paths]
+# Ensure we find the source, whether or not it was installed with --editable.
+source = [
+    "src",
+    "*/site-packages",
+]
+
+# Type checking
+# See https://github.com/microsoft/pyright/blob/main/docs/configuration.md
+[tool.pyright]
+include = ["src"]

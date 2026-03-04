@@ -15,6 +15,7 @@ import argparse
 import logging
 from gtirb import IR
 from .function import Function
+from .version import __version__
 
 
 def main() -> None:
@@ -23,6 +24,7 @@ def main() -> None:
     ap.add_argument(
         "-v", "--verbose", action="store_true", help="Verbose output"
     )
+    ap.add_argument("--version", action="version", version=__version__)
 
     args = ap.parse_args()
     logging.basicConfig(format="%(message)s")
