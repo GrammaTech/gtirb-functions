@@ -1,40 +1,80 @@
 variables:
+  # The IMAGE_TAG is derived from the branch name so that if a branch modifies
+  # the CI images, it builds and runs using the new images without conflicting
+  # with master.
+  IMAGE_TAG: "$CI_COMMIT_REF_SLUG"
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_STRATEGY: clone
-  # Note: keep "rpm-installer-centos8" and "debian-installer-ubuntu20" job names below
-  # consistent with OS versions.
-  UBUNTU20_BASE_IMAGE: ubuntu:20.04
   # Projects may want to use images in their own namespace
-  UBUNTU20_CPP_IMAGE: $DOCKER_REGISTRY/rewriting/gtirb-functions/ubuntu20
+  UBUNTU22_CPP_IMAGE: $DOCKER_REGISTRY/$CI_PROJECT_PATH/ubuntu22:$IMAGE_TAG
   CONAN_VERSION: "1.59"
+  INTERNAL_PYPI: $CI_SERVER_HOST:$CI_SERVER_PORT/api/v4/projects/1587/packages/pypi
+  PIP_INDEX_URL: https://__token__:$GL_PKG_API_TOKEN@$INTERNAL_PYPI/simple
+  # Change cache directories to be inside the project since we can only cache
+  # paths in the local working copy.
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  PRE_COMMIT_HOME: "$CI_PROJECT_DIR/.cache/pre-commit"
+  PYRIGHT_PYTHON_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pyright"
+  UV_CACHE_DIR: "$CI_PROJECT_DIR/.cache/uv"
 
 
 stages:
+  - build-images
   - check-format
-  - test_python
+  - test
   - build
-  - test_python_package
-  - cpack-make-installers
-  - cpack-test
-  - cpack-test-shared-lib
-  - cpack-deploy
-  - deploy
+  - publish
 
 default:
-  image: $DOCKER_REGISTRY/rewriting/gtirb-functions
+  image: $DOCKER_REGISTRY/$CI_PROJECT_PATH/ubuntu22:$IMAGE_TAG
   tags: ['shared']
+  cache:
+    key: python-packages
+    paths:
+      - .cache
   before_script:
-    - pip install --pre --extra-index-url=$EXTRA_INDEX_URL .
+    - uv venv
+    - uv pip install --index-url "$PIP_INDEX_URL" -r requirements-dev.txt
+
+.build-ci-image: &build-ci-image
+  stage: build-images
+  image:
+    name: quay.io/buildah/stable
+  before_script:
+    - ''
+  script:
+    # Configure authentication credentials for GitLab
+    - buildah login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+    - buildah login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD" https://index.docker.io/v1/
+    # Build our image (using a cache if available)
+    - >-
+      buildah build
+      -f "$CI_PROJECT_DIR/$DOCKERFILE_PATH"
+      --cache-from "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME/cache"
+      --cache-to "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME/cache"
+      --layers
+      --tag "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME:$IMAGE_TAG"
+      "$CI_PROJECT_DIR"
+    # Push to our internal registry
+    - buildah push "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME:$IMAGE_TAG"
+    # If we're on the master branch, also push the latest tag.
+    - >-
+      if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
+        buildah push "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME:$IMAGE_TAG" \
+            "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME:latest"
+      fi
+
+build-ci-image-ubuntu22:
+  <<: *build-ci-image
+  variables:
+    DOCKERFILE_PATH: .ci/Dockerfile.ubuntu22
+    IMAGE_NAME: ubuntu22
 
 check-format:
   stage: check-format
-  before_script: []
   script:
-    - pre-commit install-hooks
-    - pre-commit run --all-files --show-diff-on-failure
-    # helper message for new committers
     - |+
-      cat <<EOF
+      .venv/bin/pre-commit run --all-files --show-diff-on-failure || ( (cat <<EOF
       ================================================================================
       If this stage fails, the formatting of your changes may be incorrect.
       To automatically format your files, install pre-commit:
@@ -45,85 +85,52 @@ check-format:
           pre-commit run --all-files
       And then commit any changes.
       More information regarding pre-commit can be found at https://pre-commit.com.
-
-      NOTE FOR PROJECTS WITH C/C++ CODE:
-      pre-commit will by default use the correct version of every formatting tool
-      EXCEPT FOR clang-format. You need to ensure the version of clang-format you
-      use is EXACTLY version 6.0.0. This is available in Ubuntu 18 by default.
       ================================================================================
       EOF
+      ) && exit 1)
 
-test_python:
-  stage: test_python
-  script:
-    - pip install -r requirements-dev.txt
-    - mypy gtirb_functions
-    - python3 setup.py test
 
-build:
-  stage: build
+test:
+  stage: test
+  coverage: '/TOTAL.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
-    paths:
-      - dist/gtirb_functions-*-py3-none-any.whl
-    expire_in: 1 weeks
+    when: always
+    reports:
+      junit: junit-*.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
   script:
-    - python3 setup.py sdist bdist_wheel
+    - .venv/bin/tox run
 
-test_python_package:
+publish_external:
+  stage: publish
   variables:
-    GIT_STRATEGY: none
-  stage: test_python_package
-  before_script: []
+    TWINE_USER_NAME: __token__
+    TWINE_PASSWORD: $PYPI_API_KEY
   script:
-    - ls dist
-    - for f in dist/*.whl; do python3 -m pip install $f; done
-
-export_external:
-  stage: deploy
-  script:
-    - pip install -r requirements-dev.txt
-    - python3 setup.py bdist_wheel --dist-dir=$CI_PROJECT_DIR/dist
-    - VERSION=$(python3 -c "from imp import load_source; pkginfo = load_source('pkginfo.version', 'gtirb_functions/version.py'); print(pkginfo.__version__)")
-    # Do not publish .dev versions on the public pypi
-    - if [[ "$VERSION" =~ \.dev[[:digit:]]*.*$ ]]; then exit 1; fi
-    - python3 -m twine upload --verbose $CI_PROJECT_DIR/dist/*.whl -u __token__ -p $PYPI_API_KEY
+    - uv build .
+    - source .venv/bin/activate
+    - VERSION=$(python3 -c "import pkginfo, sys; print(pkginfo.Wheel(sys.argv[1]).version)" dist/*.whl)
+    - if [[ "$VERSION" =~ \.dev ]]; then exit 1; fi
+    - twine upload --verbose dist/*.whl
   rules:
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
+    - if: '$PYPI_API_KEY && $CI_COMMIT_TAG =~ /^v[0-9.]+/'
 
-export_internal:
-  stage: deploy
+publish_internal:
+  stage: publish
+  variables:
+    TWINE_REPOSITORY_URL: https://$INTERNAL_PYPI
+    TWINE_USERNAME: __token__
+    TWINE_PASSWORD: $GL_PKG_API_TOKEN
   script:
-    - pip install -r requirements-dev.txt
-    - python3 setup.py bdist_wheel --dist-dir=$CI_PROJECT_DIR/dist
-    - VERSION=$(python3 -c "from imp import load_source; pkginfo = load_source('pkginfo.version', 'gtirb_functions/version.py'); print(pkginfo.__version__)")
-    - if [[ "$VERSION" =~ \.dev[[:digit:]]*.*$ && "$CI_COMMIT_REF_NAME" =~ ^release-.* ]]; then exit 1; fi
-    # this job is not using $CI_JOB_TOKEN because it only has read access
-    # https://gitlab.com/gitlab-org/gitlab/-/issues/35067
-    # this job is also not using $CI_DEPLOY_USER and $CI_DEPLOY_PASSWORD because it only has write access
-    - if [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
-        if [[ ! "$VERSION" =~ \.dev[[:digit:]]*$ ]]; then
-          echo "[ERROR] On the master branch, we must be exporting a -dev version.";
-          exit 1;
-        fi;
-        if pip3 install --extra-index-url=$EXTRA_INDEX_URL "gtirb-functions>$VERSION" 2>/dev/null; then
-          echo "[ERROR] The package version being published on master should always be >= the version in the repository.";
-          exit 1;
-        fi;
-        wget ${CI_SERVER_HOST}/research/templates/python-module/raw/master/delete_remote_packages.py;
-        python3 $CI_PROJECT_DIR/delete_remote_packages.py $GL_PKG_API_TOKEN dist/*.whl;
-      fi
-    - wget ${CI_SERVER_HOST}/research/templates/python-module/raw/master/.pypirc
-    - sed "s/password = <access token>/password = $GL_PKG_API_TOKEN/" $CI_PROJECT_DIR/.pypirc > ~/.pypirc
-    - python3 -m twine upload --verbose --repository repypi $CI_PROJECT_DIR/dist/*.whl
+    - uv pip install --index-url "$PIP_INDEX_URL" pkginfo twine
+    - uv build .
+    - source .venv/bin/activate
+    - twine upload --verbose dist/*.whl
   rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
-    # If you need to publish a package for a specific branch, change the
-    # package version to something like, '0.0.0.dev0+mybranchname', uncomment
-    # the rule below and replace 'mybranchname' with your branch name.
-    #- if: '$CI_COMMIT_BRANCH == "mybranchname"'
-    #  changes:
-    #    - src/version.py
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "schedule"'
+    - if: '$CI_COMMIT_TAG =~ /^v[0-9.]+/'
 
 
 .conan-template: &conan-template
@@ -140,18 +147,17 @@ export_internal:
   before_script: []
   script:
     - *conan-template
-    - apt update -y && apt install -y libgtirb-dev
     - conan install .
     - python3 create-conan-package.py --build=missing
 
-build-ubuntu20:
-  image: ${UBUNTU20_CPP_IMAGE}
+build-ubuntu22:
+  image: ${UBUNTU22_CPP_IMAGE}
   <<: *ubuntu-build
 
 coverage:
   stage: build
   needs: [check-format]
-  image: ${UBUNTU20_CPP_IMAGE}
+  image: ${UBUNTU22_CPP_IMAGE}
   before_script: []
   script:
     - *conan-template
@@ -162,75 +168,3 @@ coverage:
     - make
     - ctest
     - gcovr -e googletest-src -r ..
-
-# CPack jobs:
-
-.build-cpack-template: &build-cpack
-  stage: build
-  needs: [check-format]
-  before_script: []
-  artifacts:
-    paths:
-      - build/
-  script:
-    - mkdir build
-    - cd build
-    - apt update -y && apt install -y libgtirb-dev
-    - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DGTIRB_FUNCTIONS_STRIP_DEBUG_SYMBOLS=ON ..
-    - make
-    - cpack -G DEB -D CPACK_GTIRB_FUNCTIONS_PACKAGE=dev -D CPACK_UBUNTU_NAME=$(lsb_release -sc)
-
-.setup-repo: &setup-repo
-  stage: cpack-make-installers
-  artifacts:
-    paths:
-      - installers/
-  script:
-    - mkdir installers/
-    - cp build/*.deb installers/
-    - cd installers/ && dpkg-scanpackages . /dev/null > Packages
-
-.cpack-update-apt-sources-template: &cpack-update-apt-sources-template |
-    echo -e "\ndeb [trusted=yes] file:$(pwd)/installers/ ./\n" >> /etc/apt/sources.list
-    apt-get update
-
-.test-dev: &test-dev
-  stage: cpack-test
-  before_script: []
-  script:
-    - *cpack-update-apt-sources-template
-    - apt-get install -y libgtirb-functions-dev
-    - g++ .ci/test_install.cpp --std=c++17 -lgtirb
-
-
-.debian-deploy: &debian-deploy
-  stage: cpack-deploy
-  artifacts:
-    paths:
-      - '*gtirb-functions*.deb'
-  script:
-    - cp installers/*.deb ./
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
-
-build-cpack-ubuntu20:
-  image: ${UBUNTU20_CPP_IMAGE}
-  <<: *build-cpack
-
-setup-repo-ubuntu20:
-  image: ${UBUNTU20_CPP_IMAGE}
-  needs: [build-cpack-ubuntu20]
-  <<: *setup-repo
-
-test-dev-ubuntu20:
-  variables:
-    DISTRO_NAME: focal
-  image: ${UBUNTU20_CPP_IMAGE}
-  needs: [setup-repo-ubuntu20]
-  <<: *test-dev
-
-deploy-ubuntu20:
-  image: ${UBUNTU20_CPP_IMAGE}
-  needs: [setup-repo-ubuntu20, test-dev-ubuntu20]
-  <<: *debian-deploy

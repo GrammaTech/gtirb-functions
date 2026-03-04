@@ -11,9 +11,10 @@
 # endorsement should be inferred.
 #
 import collections
-import gtirb
 import uuid
 from typing import Iterable, List, Optional, Set, Tuple
+
+import gtirb
 
 
 class Function(object):

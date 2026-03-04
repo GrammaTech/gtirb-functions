@@ -1,7 +1,8 @@
-from conans import ConanFile, CMake
-from conans.errors import ConanInvalidConfiguration
 import os
 import re
+
+from conans import CMake, ConanFile
+from conans.errors import ConanInvalidConfiguration
 
 main_branch = "master"
 

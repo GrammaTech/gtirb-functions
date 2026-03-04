@@ -15,7 +15,7 @@
                  (if (getenv "QUICK_LISP")
                      (concat (getenv "QUICK_LISP") "/dists/quicklisp/software/")
                    ;; Default for Ubuntu apt-get installs.
-                   "/usr/share/emacs25/site-lisp/elpa/")
+                   "/usr/share/emacs/site-lisp/elpa/")
                  t pkg-glob))
               (list "slime*" "paredit*"))))
 (defun verbose-require (package)
@@ -30,7 +30,7 @@
 (verbose-require 'paredit)
 
 (set-default 'indent-tabs-mode nil)
-(pushnew 'untabify *lisp-format-fixers*)
+(cl-pushnew 'untabify *lisp-format-fixers*)
 
 (defun fix-trailing-parens (start end &optional _arg)
   "Use `paredit-close-parenthesis' to fix trailing parens."
@@ -46,7 +46,7 @@
         (forward-char -1)
         (paredit-close-parenthesis))))
   (move-to-column c)))
-(pushnew 'fix-trailing-parens *lisp-format-fixers*)
+(cl-pushnew 'fix-trailing-parens *lisp-format-fixers*)
 
 ;;; Syntax table extension for curry-compose-reader-macros
 (modify-syntax-entry ?\[ "(]" lisp-mode-syntax-table)
@@ -57,7 +57,8 @@
 (modify-syntax-entry ?\» ")«" lisp-mode-syntax-table)
 
 ;;; Specify indentation levels for specific functions.
-(mapc (lambda (pair) (put (first pair) 'lisp-indent-function (second pair)))
+(mapc (lambda (pair)
+        (put (cl-first pair) 'lisp-indent-function (cl-second pair)))
       '((make-instance 1)
         (if-let 1)
         (if-let* 1)
@@ -77,9 +78,9 @@
   ;;          (list 'define-feature-lisp-indent
   ;;                path state indent-point sexp-column normal-indent))
   (cond
-   ((equalp path '(2)) 2)   ; Doc string for enclosing define-feature.
-   ((equalp path '(3)) 2)   ; Extractor function definition.
-   ((equalp path '(3 2)) 4) ; Doc string for extractor.
-   ((equalp path '(4)) 2)   ; Merge function definition.
+   ((cl-equalp path '(2)) 2)   ; Doc string for enclosing define-feature.
+   ((cl-equalp path '(3)) 2)   ; Extractor function definition.
+   ((cl-equalp path '(3 2)) 4) ; Doc string for extractor.
+   ((cl-equalp path '(4)) 2)   ; Merge function definition.
    (t nil)))                ; Otherwise do the default.
 (put 'define-feature 'lisp-indent-function 'define-feature-lisp-indent)

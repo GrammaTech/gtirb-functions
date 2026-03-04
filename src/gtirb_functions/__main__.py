@@ -13,7 +13,9 @@
 #
 import argparse
 import logging
+
 from gtirb import IR
+
 from .function import Function
 from .version import __version__
 

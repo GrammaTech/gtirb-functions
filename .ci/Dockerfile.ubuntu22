@@ -1,0 +1,32 @@
+FROM ubuntu:22.04
+
+ARG BOOST_VERSION=1.74
+
+SHELL [ "/bin/bash", "-c" ]
+# DEBIAN_FRONTEND=noninteractive: needed to sidestep interactivity in install
+# of tzdata, which asks for time zone info
+RUN apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive \
+    apt-get install -y autoconf \
+                       automake \
+                       build-essential \
+                       clang-format \
+                       cmake \
+                       curl \
+                       elpa-paredit \
+                       emacs-nox \
+                       gcovr \
+                       git \
+                       python3 \
+                       python3-pip \
+                       sbcl \
+                       slime \
+                       software-properties-common \
+                       wget
+
+RUN  python3 -m pip install --upgrade pip && \
+     python3 -m pip install pre-commit conan uv
+
+# install boost
+RUN add-apt-repository ppa:mhier/libboost-latest
+RUN apt-get update -y && apt-get install -y libboost${BOOST_VERSION}-dev

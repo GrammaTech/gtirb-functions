@@ -47,7 +47,8 @@ class FunctionTest(unittest.TestCase):
 
         f2 = uuid.uuid4()
         f2_blocks = self._generate_subgraph(
-            interval, (10, 11, gtirb.Edge.Type.Return),
+            interval,
+            (10, 11, gtirb.Edge.Type.Return),
         )
         f2_name = gtirb.Symbol(name="f2", payload=f2_blocks[0])
         f2_name.module = module
@@ -65,7 +66,8 @@ class FunctionTest(unittest.TestCase):
         )
 
         module.aux_data["functionNames"] = gtirb.AuxData(
-            type_name="mapping<UUID,UUID>", data={f1: f1_name, f2: f2_name},
+            type_name="mapping<UUID,UUID>",
+            data={f1: f1_name, f2: f2_name},
         )
 
         matches = 0
