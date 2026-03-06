@@ -1,5 +1,7 @@
-1.0.10 (Python):
-- TBD
+1.1.0:
+- Moved from setup.py to pyproject.toml
+- Bumped minimum supported Python version to 3.8
+- Bumped minimum supported GTIRB version to 1.10.7
 
 1.0.9 (Python):
 - Added support for Python typing
