@@ -24,7 +24,7 @@ NodeMap make_code_blocks(Context& C, ByteInterval* interval,
 }
 
 CodeBlock* get_code_block(NodeMap& map, NodeMap::key_type i) {
-  auto* block = dyn_cast<CodeBlock>(map[i]);
+  auto* block = gtirb::dyn_cast<CodeBlock>(map[i]);
   return block;
 }
 

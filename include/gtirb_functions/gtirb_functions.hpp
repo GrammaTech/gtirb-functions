@@ -25,6 +25,11 @@
 #include <unordered_set>
 #include <vector>
 
+#ifndef GTIRB_WRAP_UTILS_IN_NAMESPACE
+#error                                                                         \
+    "define GTIRB_WRAP_UTILS_IN_NAMESPACE before including gtirb_functions headers"
+#endif
+
 #ifndef GTIRB_FN_H
 #define GTIRB_FN_H
 
@@ -101,7 +106,7 @@ private:
             break;
           }
           if ((Type != EdgeType::Call) && (Type != EdgeType::Syscall)) {
-            auto Dest = dyn_cast<CodeBlockType>(Succ);
+            auto Dest = gtirb::dyn_cast<CodeBlockType>(Succ);
             if ((Dest == nullptr) || (Blocks.find(Dest) == Blocks.end())) {
               ExitBlocks.insert(Block);
               break;
@@ -180,7 +185,7 @@ private:
         // Look up the function's entry points and their names
         for (const auto& Id : FnEntryIds) {
           auto* FnBlockNode = Node::getByUUID(C, Id);
-          if (auto* FnBlock = dyn_cast_or_null<CodeBlock>(FnBlockNode)) {
+          if (auto* FnBlock = gtirb::dyn_cast_or_null<CodeBlock>(FnBlockNode)) {
             EntryBlocks.insert(FnBlock);
             for (auto& s : Mod.findSymbols(*FnBlock)) {
               NameSymbols.insert(&s);
@@ -195,8 +200,8 @@ private:
           if (FnBlockIdIter != BlocksByFn->end()) {
             auto FnBlockIds = (*FnBlockIdIter).second;
             for (const auto& Id : FnBlockIds) {
-              if (auto Block =
-                      dyn_cast_or_null<CodeBlock>(Node::getByUUID(C, Id))) {
+              if (auto Block = gtirb::dyn_cast_or_null<CodeBlock>(
+                      Node::getByUUID(C, Id))) {
                 FnBlocks.insert(Block);
               }
             }
@@ -208,7 +213,7 @@ private:
           auto FnNameIter = FnNames->find(FnId);
           if (FnNameIter != FnNames->end()) {
             auto Id = (*FnNameIter).second;
-            CanonName = dyn_cast<Symbol>(Symbol::getByUUID(C, Id));
+            CanonName = gtirb::dyn_cast<Symbol>(Symbol::getByUUID(C, Id));
           }
         }
 

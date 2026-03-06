@@ -130,6 +130,8 @@ elseif((${CMAKE_CXX_COMPILER_ID} STREQUAL GNU) OR (${CMAKE_CXX_COMPILER_ID}
   add_compile_options(-fPIC)
 endif()
 
+add_compile_definitions(GTIRB_WRAP_UTILS_IN_NAMESPACE)
+
 # ---------------------------------------------------------------------------
 # Google Test Application
 # ---------------------------------------------------------------------------
