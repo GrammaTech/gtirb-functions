@@ -1,5 +1,5 @@
 # Python files and directories
-/*.egg-info/
+*.egg-info/
 *.pyc
 .mypy_cache/
 .tox/
