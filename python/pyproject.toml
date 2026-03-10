@@ -56,18 +56,10 @@ Issues = "https://github.com/GrammaTech/gtirb-functions/issues"
 
 # Version numbers
 [tool.setuptools_scm]
+# version information is pulled from the .git directory which is in the
+# parent directory.
+root = ".."
 version_file = "src/gtirb_functions/version.py"
-
-# Code formatting
-# See https://black.readthedocs.io/
-[tool.black]
-line-length = 79
-
-# Import statement formatting
-# See https://pycqa.github.io/isort/
-[tool.isort]
-profile = "black"
-line_length = 79
 
 # Test coverage
 # See https://coverage.readthedocs.io/

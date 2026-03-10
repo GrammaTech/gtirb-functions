@@ -32,7 +32,7 @@ default:
       - .cache
   before_script:
     - uv venv
-    - uv pip install --index-url "$PIP_INDEX_URL" -r requirements-dev.txt
+    - uv pip install --index-url "$PIP_INDEX_URL" -r python/requirements-dev.txt
 
 .build-ci-image: &build-ci-image
   stage: build-images
@@ -72,8 +72,9 @@ check-format:
   stage: check-format
   script:
     - uv pip install pre-commit
+    - cd python
     - |+
-      .venv/bin/pre-commit run --all-files --show-diff-on-failure || ( (cat <<EOF
+      ../.venv/bin/pre-commit run --all-files --show-diff-on-failure || ( (cat <<EOF
       ================================================================================
       If this stage fails, the formatting of your changes may be incorrect.
       To automatically format your files, install pre-commit:
@@ -101,7 +102,8 @@ test:
         coverage_format: cobertura
         path: coverage.xml
   script:
-    - .venv/bin/tox run
+    - cd python
+    - ../.venv/bin/tox run
 
 publish_external:
   stage: publish
@@ -109,6 +111,7 @@ publish_external:
     TWINE_USER_NAME: __token__
     TWINE_PASSWORD: $PYPI_API_KEY
   script:
+    - cd python
     - uv build .
     - source .venv/bin/activate
     - VERSION=$(python3 -c "import pkginfo, sys; print(pkginfo.Wheel(sys.argv[1]).version)" dist/*.whl)
@@ -124,6 +127,7 @@ publish_internal:
     TWINE_USERNAME: __token__
     TWINE_PASSWORD: $GL_PKG_API_TOKEN
   script:
+    - cd python
     - uv build .
     - source .venv/bin/activate
     - twine upload --verbose dist/*.whl
@@ -145,6 +149,7 @@ publish_internal:
   needs: [check-format]
   before_script: []
   script:
+    - cd cpp
     - *conan-template
     - conan install .
     - python3 create-conan-package.py --build=missing
@@ -165,6 +170,7 @@ coverage:
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
   before_script: []
   script:
+    - cd cpp
     - *conan-template
     - mkdir build
     - cd build

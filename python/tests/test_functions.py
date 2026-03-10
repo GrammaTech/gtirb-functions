@@ -2,7 +2,6 @@ import unittest
 import uuid
 
 import gtirb
-
 import gtirb_functions
 
 

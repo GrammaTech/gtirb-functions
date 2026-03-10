@@ -6,7 +6,7 @@
 __pycache__/
 /build/
 /dist/
-/src/gtirb_functions/version.py
+/python/src/gtirb_functions/version.py
 
 # IDE files and directories
 /.vscode/
