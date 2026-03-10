@@ -5,8 +5,6 @@ variables:
   IMAGE_TAG: "$CI_COMMIT_REF_SLUG"
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_STRATEGY: clone
-  # Projects may want to use images in their own namespace
-  UBUNTU22_CPP_IMAGE: $DOCKER_REGISTRY/$CI_PROJECT_PATH/ubuntu22:$IMAGE_TAG
   CONAN_VERSION: "1.59"
   INTERNAL_PYPI: $CI_SERVER_HOST:$CI_SERVER_PORT/api/v4/projects/1587/packages/pypi
   PIP_INDEX_URL: https://__token__:$GL_PKG_API_TOKEN@$INTERNAL_PYPI/simple
@@ -21,8 +19,8 @@ variables:
 stages:
   - build-images
   - check-format
-  - test
   - build
+  - test
   - publish
 
 default:
@@ -73,6 +71,7 @@ build-ci-image-ubuntu22:
 check-format:
   stage: check-format
   script:
+    - uv pip install pre-commit
     - |+
       .venv/bin/pre-commit run --all-files --show-diff-on-failure || ( (cat <<EOF
       ================================================================================
@@ -92,6 +91,7 @@ check-format:
 
 test:
   stage: test
+  needs: [check-format]
   coverage: '/TOTAL.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     when: always
@@ -124,7 +124,6 @@ publish_internal:
     TWINE_USERNAME: __token__
     TWINE_PASSWORD: $GL_PKG_API_TOKEN
   script:
-    - uv pip install --index-url "$PIP_INDEX_URL" pkginfo twine
     - uv build .
     - source .venv/bin/activate
     - twine upload --verbose dist/*.whl
@@ -151,13 +150,19 @@ publish_internal:
     - python3 create-conan-package.py --build=missing
 
 build-ubuntu22:
-  image: ${UBUNTU22_CPP_IMAGE}
   <<: *ubuntu-build
 
 coverage:
   stage: build
   needs: [check-format]
-  image: ${UBUNTU22_CPP_IMAGE}
+  artifacts:
+    when: always
+    reports:
+      junit: build/report.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: build/coverage.xml
+  coverage: '/^TOTAL.*\s+(\d+\%)$/'
   before_script: []
   script:
     - *conan-template
@@ -165,6 +170,9 @@ coverage:
     - cd build
     - conan install ..
     - cmake -DENABLE_CODE_COVERAGE=ON -DGTIRB_FUNCTIONS_ENABLE_TESTS=ON -DENABLE_DEBUG=ON -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DENABLE_CONAN=ON ..
-    - make
-    - ctest
-    - gcovr -e googletest-src -r ..
+    - cmake --build .
+    - ctest --output-on-failure --output-junit report.xml
+    - cd ..
+    - gcovr -e build --xml build/coverage.xml
+    # Don't include coverage of the tests in the overall percentage
+    - gcovr -e build -e '.*/test_.*' --fail-under-line 80 --txt

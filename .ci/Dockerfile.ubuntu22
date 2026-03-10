@@ -1,7 +1,5 @@
 FROM ubuntu:22.04
 
-ARG BOOST_VERSION=1.74
-
 SHELL [ "/bin/bash", "-c" ]
 # DEBIAN_FRONTEND=noninteractive: needed to sidestep interactivity in install
 # of tzdata, which asks for time zone info
@@ -17,6 +15,7 @@ RUN apt-get update -y && \
                        emacs-nox \
                        gcovr \
                        git \
+                       libboost-dev \
                        python3 \
                        python3-pip \
                        sbcl \
@@ -24,9 +23,6 @@ RUN apt-get update -y && \
                        software-properties-common \
                        wget
 
-RUN  python3 -m pip install --upgrade pip && \
-     python3 -m pip install pre-commit conan uv
-
-# install boost
-RUN add-apt-repository ppa:mhier/libboost-latest
-RUN apt-get update -y && apt-get install -y libboost${BOOST_VERSION}-dev
+RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR="/usr/bin" sh
+RUN /usr/bin/uv venv
+RUN /usr/bin/uv pip install conan
