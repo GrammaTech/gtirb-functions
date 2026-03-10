@@ -42,10 +42,12 @@ repos:
         name: lisp-format
         args: [-style=file]
 
-  - repo: https://github.com/iconmaster5326/cmake-format-pre-commit-hook
-    rev: master
+  - repo: https://github.com/cheshirekow/cmake-format-precommit
+    rev: v0.6.13
     hooks:
       - id: cmake-format
+        types: [file]
+        files: (^CMakeLists\.|\.cmake\.in)
 
   - repo: https://github.com/doublify/pre-commit-clang-format
     rev: master
