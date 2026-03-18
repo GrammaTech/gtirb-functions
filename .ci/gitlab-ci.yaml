@@ -97,10 +97,10 @@ test:
   artifacts:
     when: always
     reports:
-      junit: junit-*.xml
+      junit: python/junit-*.xml
       coverage_report:
         coverage_format: cobertura
-        path: coverage.xml
+        path: python/coverage.xml
   script:
     - cd python
     - ../.venv/bin/tox run
@@ -137,7 +137,7 @@ publish_internal:
 
 
 .conan-template: &conan-template
-  - pip3 install --upgrade conan~=$CONAN_VERSION
+  - uv pip install --upgrade conan~=$CONAN_VERSION
   - conan profile new default --detect
   - conan profile update settings.compiler.libcxx=libstdc++11 default
   - conan remote add gitlab ${CI_API_V4_URL}/packages/conan
@@ -163,10 +163,10 @@ coverage:
   artifacts:
     when: always
     reports:
-      junit: build/report.xml
+      junit: cpp/build/report.xml
       coverage_report:
         coverage_format: cobertura
-        path: build/coverage.xml
+        path: cpp/build/coverage.xml
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
   before_script: []
   script:
