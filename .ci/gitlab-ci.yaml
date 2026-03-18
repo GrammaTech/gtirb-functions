@@ -33,6 +33,7 @@ default:
   before_script:
     - uv venv
     - uv pip install --index-url "$PIP_INDEX_URL" -r python/requirements-dev.txt
+    - source .venv/bin/activate
 
 .build-ci-image: &build-ci-image
   stage: build-images
@@ -72,9 +73,8 @@ check-format:
   stage: check-format
   script:
     - uv pip install pre-commit
-    - cd python
     - |+
-      ../.venv/bin/pre-commit run --all-files --show-diff-on-failure || ( (cat <<EOF
+      pre-commit run --all-files --show-diff-on-failure || ( (cat <<EOF
       ================================================================================
       If this stage fails, the formatting of your changes may be incorrect.
       To automatically format your files, install pre-commit:
@@ -103,7 +103,7 @@ test:
         path: python/coverage.xml
   script:
     - cd python
-    - ../.venv/bin/tox run
+    - tox run
 
 publish_external:
   stage: publish
@@ -113,7 +113,6 @@ publish_external:
   script:
     - cd python
     - uv build .
-    - source .venv/bin/activate
     - VERSION=$(python3 -c "import pkginfo, sys; print(pkginfo.Wheel(sys.argv[1]).version)" dist/*.whl)
     - if [[ "$VERSION" =~ \.dev ]]; then exit 1; fi
     - twine upload --verbose dist/*.whl
@@ -129,7 +128,6 @@ publish_internal:
   script:
     - cd python
     - uv build .
-    - source .venv/bin/activate
     - twine upload --verbose dist/*.whl
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "schedule"'
@@ -147,10 +145,9 @@ publish_internal:
 .ubuntu-build-template: &ubuntu-build
   stage: build
   needs: [check-format]
-  before_script: []
   script:
-    - cd cpp
     - *conan-template
+    - cd cpp
     - conan install .
     - python3 create-conan-package.py --build=missing
 
@@ -168,10 +165,9 @@ coverage:
         coverage_format: cobertura
         path: cpp/build/coverage.xml
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
-  before_script: []
   script:
-    - cd cpp
     - *conan-template
+    - cd cpp
     - mkdir build
     - cd build
     - conan install ..

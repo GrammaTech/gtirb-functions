@@ -23,6 +23,4 @@ RUN apt-get update -y && \
                        software-properties-common \
                        wget
 
-RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR="/usr/bin" sh
-RUN /usr/bin/uv venv
-RUN /usr/bin/uv pip install conan
+RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR="/usr/local/bin" sh

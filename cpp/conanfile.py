@@ -43,7 +43,7 @@ class Properties:
     name = "gtirb-functions"
     version = get_version()
     rel_url = "rewriting/gtirb-functions"
-    exports_sources = "*"
+    exports_sources = ["../README.md", "../LICENSE.txt", "*"]
 
     @property
     def description(self):

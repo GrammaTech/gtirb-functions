@@ -2,6 +2,7 @@
 - Moved from setup.py to pyproject.toml
 - Bumped minimum supported Python version to 3.8
 - Bumped minimum supported GTIRB version to 1.10.7
+- GTIRB_WRAP_UTILS_IN_NAMESPACE should now be defined to use the C++ interface
 
 1.0.9 (Python):
 - Added support for Python typing

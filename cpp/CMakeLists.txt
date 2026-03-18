@@ -241,8 +241,24 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
     "A convenience library for working with functions in GTIRB")
 set(CPACK_PACKAGE_VENDOR "GrammaTech Inc.")
 set(CPACK_PACKAGE_CONTACT gtirb@grammatech.com)
-set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_CURRENT_SOURCE_DIR}/README.md)
-set(CPACK_PACKAGE_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+  # Conan exports the README to the source directory.
+  set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../README.md")
+  # Use the README from the top-level of the repository.
+  set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../README.md")
+else()
+  message(SEND_ERROR "package description not found!")
+endif()
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
+  # Conan exports the LICENSE to the source directory.
+  set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
+elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE.txt")
+  # Use the LICENSE from the top-level of the repository.
+  set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE.txt")
+else()
+  message(SEND_ERROR "package license not found!")
+endif()
 
 set(CPACK_DEBIAN_PACKAGE_SECTION devel)
 set(CPACK_GTIRB_FUNCTIONS_VERSION "${GTIRB_FUNCTIONS_VERSION}")
