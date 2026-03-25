@@ -252,10 +252,11 @@ else()
 endif()
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
   # Conan exports the LICENSE to the source directory.
-  set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
+  set(CPACK_PACKAGE_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
 elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE.txt")
   # Use the LICENSE from the top-level of the repository.
-  set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE.txt")
+  set(CPACK_PACKAGE_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE.txt")
+
 else()
   message(SEND_ERROR "package license not found!")
 endif()
