@@ -33,12 +33,14 @@ default:
     - uv pip install --index-url "$INTERNAL_PIP_INDEX" -r python/requirements-dev.txt
     - source .venv/bin/activate
 
-.build-ci-image: &build-ci-image
+build-ci-image:
   stage: build-images
   image:
     name: quay.io/buildah/stable
   before_script:
     - ''
+  variables:
+    IMAGE_NAME: ubuntu22
   script:
     # Configure authentication credentials for GitLab
     - buildah login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
@@ -46,7 +48,7 @@ default:
     # Build our image (using a cache if available)
     - >-
       buildah build
-      -f "$CI_PROJECT_DIR/$DOCKERFILE_PATH"
+      -f "$CI_PROJECT_DIR/.ci/Dockerfile.$IMAGE_NAME"
       --cache-from "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME/cache"
       --cache-to "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME/cache"
       --layers
@@ -60,12 +62,6 @@ default:
         buildah push "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME:$IMAGE_TAG" \
             "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME:latest"
       fi
-
-build-ci-image-ubuntu22:
-  <<: *build-ci-image
-  variables:
-    DOCKERFILE_PATH: .ci/Dockerfile.ubuntu22
-    IMAGE_NAME: ubuntu22
 
 check-format:
   stage: check-format
@@ -161,19 +157,15 @@ publish_internal:
   - export CONAN_PASSWORD="$CI_JOB_TOKEN"
   - conan user ci_user -r gitlab -p
 
-.ubuntu-build-template: &ubuntu-build
-  stage: build
-  needs: [check-format]
+publish-conan:
+  stage: publish
   script:
     - *conan-template
     - cd cpp
     - conan install .
     - python3 create-conan-package.py --build=missing
 
-build-ubuntu22:
-  <<: *ubuntu-build
-
-coverage:
+coverage-c++:
   stage: build
   needs: [check-format]
   artifacts:
