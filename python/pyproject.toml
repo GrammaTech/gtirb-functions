@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools >= 64", "setuptools-scm>=8"]
+requires = ["setuptools >= 77", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -11,29 +11,21 @@ keywords = []
 authors = [
     {name = "GrammaTech, Inc.", email = "gtirb@grammatech.com"},
 ]
-license = { text="MIT" }
-# setuptools 77 is the first version which supports PEP 639, but
-# it does not support Python 3.8. The following should be used
-# once 3.8 is no longer supported.
-#
-# license = "MIT"
-# license-files = ["LICENSE.txt"]
+license = "MIT"
+license-files = ["LICENSE.txt"]
 
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 
 # Classifiers, see https://pypi.org/classifiers/.
 classifiers = [
     "Development Status :: 5 - Production/Stable",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
 ]
 
 # Dependencies and optional dependencies. See
@@ -64,8 +56,11 @@ version_file = "src/gtirb_functions/version.py"
 # Test coverage
 # See https://coverage.readthedocs.io/
 [tool.coverage.run]
-source = ["gtirb_functions", "test"]
+source = ["gtirb_functions", "tests"]
 branch = true
+omit = [
+    "**/gtirb_functions/version.py",
+]
 
 [tool.coverage.report]
 # Testing should always achieve a minimum level of coverage of the project.
@@ -84,7 +79,7 @@ exclude_also = [
 # Ensure we find the source, whether or not it was installed with --editable.
 source = [
     "src",
-    "*/site-packages",
+    "**/site-packages",
 ]
 
 # Type checking

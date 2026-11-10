@@ -6,8 +6,6 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_STRATEGY: clone
   CONAN_VERSION: "1.59"
-  INTERNAL_PYPI: $CI_SERVER_HOST:$CI_SERVER_PORT/api/v4/projects/1587/packages/pypi
-  PIP_INDEX_URL: https://__token__:$GL_PKG_API_TOKEN@$INTERNAL_PYPI/simple
   # Change cache directories to be inside the project since we can only cache
   # paths in the local working copy.
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
@@ -31,8 +29,8 @@ default:
     paths:
       - .cache
   before_script:
-    - uv venv
-    - uv pip install --index-url "$PIP_INDEX_URL" -r python/requirements-dev.txt
+    - uv venv --python=3.11
+    - uv pip install --index-url "$INTERNAL_PIP_INDEX" -r python/requirements-dev.txt
     - source .venv/bin/activate
 
 .build-ci-image: &build-ci-image
@@ -72,7 +70,6 @@ build-ci-image-ubuntu22:
 check-format:
   stage: check-format
   script:
-    - uv pip install pre-commit
     - |+
       pre-commit run --all-files --show-diff-on-failure || ( (cat <<EOF
       ================================================================================
@@ -90,20 +87,42 @@ check-format:
       ) && exit 1)
 
 
-test:
+test-python:
   stage: test
   needs: [check-format]
-  coverage: '/TOTAL.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
+  parallel:
+    matrix:
+      - TOX_LABEL: [oldest, newest, prerelease]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+    - if: $TOX_LABEL == "prerelease"
+      allow_failure: true
+    - if: $TOX_LABEL != "prerelease"
+      allow_failure: false
   artifacts:
     when: always
     reports:
       junit: python/junit-*.xml
+    paths:
+      - python/.coverage.*
+  script:
+    - cd python
+    - tox run -m $TOX_LABEL -- --cov --junit-xml='junit-{envname}.xml' --junit-prefix='{envname}'
+
+coverage-python:
+  stage: test
+  needs: [test-python]
+  coverage: '/TOTAL.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
+  script:
+    - cd python
+    - tox run -e report
+  artifacts:
+    when: always
+    reports:
       coverage_report:
         coverage_format: cobertura
         path: python/coverage.xml
-  script:
-    - cd python
-    - tox run
 
 publish_external:
   stage: publish
@@ -122,7 +141,7 @@ publish_external:
 publish_internal:
   stage: publish
   variables:
-    TWINE_REPOSITORY_URL: https://$INTERNAL_PYPI
+    TWINE_REPOSITORY_URL: https://$INTERNAL_PYPI_URL
     TWINE_USERNAME: __token__
     TWINE_PASSWORD: $GL_PKG_API_TOKEN
   script:
