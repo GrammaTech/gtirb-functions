@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-added-large-files
       - id: check-case-conflict
@@ -21,21 +21,24 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/psf/black
-    rev: 24.8.0
+    rev: 26.10.1
     hooks:
       - id: black
         args: ["--line-length", "79"]
 
   - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
+    rev: 9.0.2
     hooks:
       - id: isort
 
   - repo: https://github.com/pycqa/flake8
-    rev: 7.1.2
+    rev: 7.5.0
     hooks:
       - id: flake8
-        additional_dependencies: ["flake8-bugbear==24.10.31"]
+        additional_dependencies: ["flake8-bugbear==26.11.9"]
+        # flake8 checks depend on the interpreter version, so pin to the version
+        # we want to support.
+        language_version: '3.11'
 
   - repo: https://github.com/eschulte/lisp-format
     rev: 088c8f7
@@ -44,12 +47,13 @@ repos:
         name: lisp-format
         args: [-style=file]
 
-  - repo: https://github.com/cheshirekow/cmake-format-precommit
-    rev: v0.6.13
+  - repo: https://github.com/BlankSpruce/gersemi-pre-commit
+    rev: 0.29.2
     hooks:
-      - id: cmake-format
-        types: [file]
-        files: (^CMakeLists\.|\.cmake\.in)
+    - id: gersemi
+      # At time of writing, gersemi does not have a binary package for python
+      # 3.15, so pin to an older interpeter that it does have a package for.
+      language_version: '3.11'
 
   - repo: https://github.com/pre-commit/mirrors-clang-format
     rev: v14.0.0
