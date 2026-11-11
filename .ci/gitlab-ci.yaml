@@ -104,7 +104,7 @@ test-python:
       - python/.coverage.*
   script:
     - cd python
-    - tox run -m $TOX_LABEL -- --cov --junit-xml='junit-{envname}.xml' --junit-prefix='{envname}'
+    - tox run -f $TOX_LABEL --skip-env '^(?!junit-)py3'
 
 coverage-python:
   stage: test
